@@ -3,9 +3,10 @@
 > AI-powered financial health scoring for restaurants, bars and cafés in Rwanda.
 > Built for **Hanga Pitch 2026**.
 
-## Live Demo
-- **Frontend:** https://your-frontend.railway.app
-- **Backend API:** https://your-backend.railway.app/api/
+## Links
+- **GitHub:** https://github.com/ivanleprince/fintext
+- **Frontend:** https://your-frontend.railway.app *(update after Railway deploy)*
+- **Backend API:** https://your-backend.railway.app/api/ *(update after Railway deploy)*
 
 ### Demo Credentials
 | Role | Username | Password |
