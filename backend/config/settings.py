@@ -70,10 +70,15 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'config.wsgi.application'
 
+DATABASE_URL = config('DATABASE_URL', default='')
+if not DATABASE_URL:
+    raise Exception('DATABASE_URL environment variable is not set.')
+
 DATABASES = {
     'default': dj_database_url.config(
-        default=config('DATABASE_URL'),
+        default=DATABASE_URL,
         conn_max_age=600,
+        engine='django.db.backends.postgresql',
     )
 }
 
