@@ -1,3 +1,5 @@
+import os
+import sys
 from pathlib import Path
 from decouple import config
 import dj_database_url
@@ -69,7 +71,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'config.wsgi.application'
 
-import os
 print('=== ENV CHECK ===', flush=True)
 print('DATABASE_URL set:', bool(os.environ.get('DATABASE_URL')), flush=True)
 print('RAILWAY_ENVIRONMENT:', os.environ.get('RAILWAY_ENVIRONMENT', 'NOT SET'), flush=True)
@@ -88,8 +89,6 @@ DATABASES = {
     )
 }
 
-# Use SQLite for tests so fintext_user doesn't need CREATEDB privilege
-import sys
 if 'test' in sys.argv:
     DATABASES['default'] = {
         'ENGINE': 'django.db.backends.sqlite3',
