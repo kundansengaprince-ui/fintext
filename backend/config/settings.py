@@ -71,12 +71,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'config.wsgi.application'
 
-print('=== ENV CHECK ===', flush=True)
-print('DATABASE_URL set:', bool(os.environ.get('DATABASE_URL')), flush=True)
-print('RAILWAY_ENVIRONMENT:', os.environ.get('RAILWAY_ENVIRONMENT', 'NOT SET'), flush=True)
-print('All DB-related vars:', [k for k in os.environ if 'DATABASE' in k or 'POSTGRES' in k or 'PG' in k], flush=True)
-print('=================', flush=True)
-
 DATABASE_URL = os.environ.get('DATABASE_URL') or config('DATABASE_URL', default='')
 if not DATABASE_URL:
     raise Exception('DATABASE_URL is not set in environment variables.')
