@@ -1,0 +1,34 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+
+# Django
+backend/.env
+backend/db.sqlite3
+backend/test_db.sqlite3
+backend/media/
+backend/staticfiles/
+backend/server.log
+
+# ML models — too large for git, Railway will train them on startup
+backend/ml/saved_model/*.pkl
+
+# Node
+frontend/node_modules/
+frontend/dist/
+mitchhub/node_modules/
+mitchhub/dist/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
