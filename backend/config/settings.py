@@ -21,18 +21,12 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'django.contrib.sites',
     # Third-party
     'rest_framework',
     'rest_framework.authtoken',
     'corsheaders',
     'django_filters',
     'django_ratelimit',
-    'allauth',
-    'allauth.account',
-    'allauth.socialaccount',
-    'allauth.socialaccount.providers.google',
-    'allauth.socialaccount.providers.apple',
     # Local apps
     'accounts',
     'sales',
@@ -52,7 +46,6 @@ MIDDLEWARE = [
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'allauth.account.middleware.AccountMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
@@ -146,33 +139,7 @@ EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
 DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='Business Health Dashboard <noreply@fintext.app>')
 FRONTEND_URL    = config('FRONTEND_URL', default='http://localhost:5173')
 
-SITE_ID = 1
 
-AUTHENTICATION_BACKENDS = [
-    'django.contrib.auth.backends.ModelBackend',
-    'allauth.account.auth_backends.AuthenticationBackend',
-]
-
-SOCIALACCOUNT_PROVIDERS = {
-    'google': {
-        'APP': {
-            'client_id': config('GOOGLE_CLIENT_ID', default=''),
-            'secret':    config('GOOGLE_CLIENT_SECRET', default=''),
-        },
-        'SCOPE': ['profile', 'email'],
-        'AUTH_PARAMS': {'access_type': 'online'},
-    },
-    'apple': {
-        'APP': {
-            'client_id': config('APPLE_CLIENT_ID', default=''),
-            'secret':    config('APPLE_CLIENT_SECRET', default=''),
-        },
-    },
-}
-
-SOCIALACCOUNT_AUTO_SIGNUP   = True
-SOCIALACCOUNT_EMAIL_REQUIRED = True
-ACCOUNT_EMAIL_VERIFICATION   = 'none'
 
 # Rate limiting uses cache
 CACHES = {
