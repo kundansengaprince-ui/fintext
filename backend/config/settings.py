@@ -9,7 +9,6 @@ DEBUG = config('DEBUG', default=False, cast=bool)
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1').split(',')
 
 # Accept any Railway-generated domain automatically
-import os
 RAILWAY_DOMAIN = os.environ.get('RAILWAY_PUBLIC_DOMAIN', '')
 if RAILWAY_DOMAIN and RAILWAY_DOMAIN not in ALLOWED_HOSTS:
     ALLOWED_HOSTS.append(RAILWAY_DOMAIN)
@@ -70,9 +69,16 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'config.wsgi.application'
 
-DATABASE_URL = config('DATABASE_URL', default='')
+import os
+print('=== ENV CHECK ===', flush=True)
+print('DATABASE_URL set:', bool(os.environ.get('DATABASE_URL')), flush=True)
+print('RAILWAY_ENVIRONMENT:', os.environ.get('RAILWAY_ENVIRONMENT', 'NOT SET'), flush=True)
+print('All DB-related vars:', [k for k in os.environ if 'DATABASE' in k or 'POSTGRES' in k or 'PG' in k], flush=True)
+print('=================', flush=True)
+
+DATABASE_URL = os.environ.get('DATABASE_URL') or config('DATABASE_URL', default='')
 if not DATABASE_URL:
-    raise Exception('DATABASE_URL environment variable is not set.')
+    raise Exception('DATABASE_URL is not set in environment variables.')
 
 DATABASES = {
     'default': dj_database_url.config(
