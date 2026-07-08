@@ -7,11 +7,9 @@ from django.shortcuts import get_object_or_404
 from django.views.decorators.cache import never_cache
 from django.utils.decorators import method_decorator
 from django_ratelimit.decorators import ratelimit
-
 from django.db.models import Count
 from .models import CustomUser, Business, ClientRequest
 from .serializers import LoginSerializer, UserSerializer, UserCreateSerializer, UserUpdateSerializer, RegisterSerializer, BusinessSerializer
-from .serializers import _suggest_usernames
 from core.permissions import TeamPermission
 from audit.utils import log
 from audit.models import AuditLog
@@ -114,6 +112,7 @@ class CheckUsernameView(APIView):
 
     def get(self, request):
         import re
+        from .serializers import _suggest_usernames
         RESERVED = {
             'admin', 'root', 'support', 'help', 'api', 'www', 'mail', 'login',
             'register', 'signup', 'dashboard', 'fintext', 'system', 'null', 'undefined',
@@ -141,63 +140,6 @@ class CheckUsernameView(APIView):
                 'suggestions': _suggest_usernames(value),
             })
         return Response({'available': True})
-
-
-class OAuthCallbackView(APIView):
-    """
-    POST { provider: 'google'|'apple', access_token: '...' }
-    Returns our app token + user + business — same shape as LoginView.
-    If it's a brand-new social account, creates a Business automatically.
-    """
-    permission_classes = [AllowAny]
-
-    def post(self, request):
-        from allauth.socialaccount.providers.google.views import GoogleOAuth2Adapter
-        from allauth.socialaccount.providers.apple.views import AppleOAuth2Adapter
-        from allauth.socialaccount.models import SocialLogin, SocialToken, SocialApp
-        from allauth.socialaccount.helpers import complete_social_login
-        from django.test import RequestFactory
-
-        provider = request.data.get('provider', '').lower()
-        access_token = request.data.get('access_token', '').strip()
-
-        if provider not in ('google', 'apple'):
-            return Response({'detail': 'Unsupported provider.'}, status=status.HTTP_400_BAD_REQUEST)
-        if not access_token:
-            return Response({'detail': 'access_token is required.'}, status=status.HTTP_400_BAD_REQUEST)
-
-        try:
-            AdapterClass = GoogleOAuth2Adapter if provider == 'google' else AppleOAuth2Adapter
-            adapter = AdapterClass(request)
-            app = SocialApp.objects.get(provider=provider)
-            token = SocialToken(app=app, token=access_token)
-            login = adapter.complete_login(request, app, token, response={'access_token': access_token})
-            login.token = token
-            login.state = SocialLogin.state_from_request(request)
-            complete_social_login(request, login)
-        except Exception as e:
-            return Response({'detail': f'OAuth failed: {str(e)}'}, status=status.HTTP_400_BAD_REQUEST)
-
-        user = login.account.user
-        if not user.pk:
-            return Response({'detail': 'Could not authenticate with provider.'}, status=status.HTTP_400_BAD_REQUEST)
-
-        # Auto-create a business for brand-new social users
-        if not user.business:
-            from .models import Business
-            name = user.get_full_name() or user.username or user.email.split('@')[0]
-            business = Business.objects.create(name=f"{name}'s Business")
-            user.business = business
-            user.role = CustomUser.Role.MANAGER
-            user.save(update_fields=['business', 'role'])
-
-        token_obj, _ = Token.objects.get_or_create(user=user)
-        log(request, AuditLog.Action.LOGIN, 'Auth', user.id, f'{user.username} logged in via {provider}')
-        return Response({
-            'token': token_obj.key,
-            'user': UserSerializer(user).data,
-            'business': BusinessSerializer(user.business).data,
-        })
 
 
 @method_decorator(ratelimit(key='ip', rate='5/h', method='POST', block=True), name='post')
