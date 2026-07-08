@@ -4,7 +4,7 @@
 > Built for **Hanga Pitch 2026**.
 
 ## Links
-- **GitHub:** https://github.com/ivanleprince/fintext
+- **GitHub:** https://github.com/kundansengaprince-ui/fintext
 - **Frontend:** https://your-frontend.railway.app *(update after Railway deploy)*
 - **Backend API:** https://your-backend.railway.app/api/ *(update after Railway deploy)*
 
