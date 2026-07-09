@@ -5,13 +5,16 @@ django.setup()
 
 from accounts.models import CustomUser
 
-if not CustomUser.objects.filter(username='admin').exists():
-    CustomUser.objects.create_superuser(
-        username='admin',
-        email='admin@fintext.rw',
-        password='admin1234',
-    )
+user, created = CustomUser.objects.get_or_create(
+    username='admin',
+    defaults={'email': 'admin@fintext.rw', 'is_staff': True, 'is_superuser': True}
+)
+user.is_staff = True
+user.is_superuser = True
+user.set_password('admin1234')
+user.save()
+
+if created:
     print('Superuser created: admin / admin1234')
-    print('Use Django admin to manage businesses and onboard clients.')
 else:
-    print('Superuser already exists.')
+    print('Superuser updated: admin / admin1234')
