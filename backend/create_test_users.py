@@ -37,16 +37,14 @@ for u in users:
         username=u['username'],
         defaults={**u, 'business': business}
     )
-    if created:
-        obj.set_password(pw)
-        obj.save()
-        print(f"  Created  {obj.username:10s}  ({obj.role})")
-    elif not obj.business:
+    if not obj.business:
         obj.business = business
-        obj.save(update_fields=['business'])
-        print(f"  Fixed    {obj.username:10s}  (assigned to {business.name})")
+    obj.set_password(pw)
+    obj.save()
+    if created:
+        print(f"  Created  {obj.username:10s}  ({obj.role})")
     else:
-        print(f"  Exists   {obj.username:10s}  ({obj.role})")
+        print(f"  Updated  {obj.username:10s}  ({obj.role}) — password reset")
 
 print(f'\nDemo accounts ready (business: {business.name}):')
 print('  manager  / manager123  — full access')
