@@ -15,6 +15,8 @@ RAILWAY_DOMAIN = os.environ.get('RAILWAY_PUBLIC_DOMAIN', '')
 if RAILWAY_DOMAIN and RAILWAY_DOMAIN not in ALLOWED_HOSTS:
     ALLOWED_HOSTS.append(RAILWAY_DOMAIN)
 
+ALLOWED_HOSTS.append('*')  # temporary diagnostic
+
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
