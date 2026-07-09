@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-const api = axios.create({ baseURL: '/api' })
+const api = axios.create({ baseURL: 'https://fintext-production.up.railway.app/api' })
 
 api.interceptors.request.use(cfg => {
   const token = localStorage.getItem('token')
