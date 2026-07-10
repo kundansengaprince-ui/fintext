@@ -15,8 +15,18 @@ from inventory.models import InventoryItem, InventoryRecord
 from customers.models import CustomerRetentionRecord
 from health_score.services import compute_score_for_date
 
-business = Business.objects.get(name='Kivu Noir')
-manager  = CustomUser.objects.get(username='manager')
+business, _ = Business.objects.get_or_create(
+    name='Kivu Noir',
+    defaults={'business_type': 'CAFE', 'location': 'Kigali, Rwanda',
+              'email': 'info@kivunoir.rw', 'phone': '+250 788 111 111'}
+)
+manager, created = CustomUser.objects.get_or_create(
+    username='kivunoir',
+    defaults={'first_name': 'Kivu', 'last_name': 'Noir', 'role': 'MANAGER', 'business': business}
+)
+if created:
+    manager.set_password('kivunoir123')
+    manager.save()
 
 rng = random.Random(42)
 
