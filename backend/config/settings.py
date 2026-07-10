@@ -1,3 +1,4 @@
+#config/settings.py
 import os
 import sys
 from pathlib import Path
@@ -10,12 +11,15 @@ SECRET_KEY = config('SECRET_KEY')
 DEBUG = config('DEBUG', default=False, cast=bool)
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1').split(',')
 
-# Accept any Railway-generated domain automatically
-RAILWAY_DOMAIN = os.environ.get('RAILWAY_PUBLIC_DOMAIN', '')
-if RAILWAY_DOMAIN and RAILWAY_DOMAIN not in ALLOWED_HOSTS:
-    ALLOWED_HOSTS.append(RAILWAY_DOMAIN)
+# Accept Railway-generated domains automatically
+for _var in ('RAILWAY_PUBLIC_DOMAIN', 'RAILWAY_PRIVATE_DOMAIN'):
+    _domain = os.environ.get(_var, '')
+    if _domain and _domain not in ALLOWED_HOSTS:
+        ALLOWED_HOSTS.append(_domain)
 
-ALLOWED_HOSTS.append('fintext-production.up.railway.app')
+# Railway healthcheck origin
+if 'healthcheck.railway.app' not in ALLOWED_HOSTS:
+    ALLOWED_HOSTS.append('healthcheck.railway.app')
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -43,9 +47,9 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -131,7 +135,7 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 20,
 }
 
-CORS_ALLOWED_ORIGINS = config('CORS_ALLOWED_ORIGINS', default='http://localhost:5173,http://localhost:3000,https://content-bravery-production-7ebd.up.railway.app').split(',')
+CORS_ALLOWED_ORIGINS = config('CORS_ALLOWED_ORIGINS', default='http://localhost:5173,http://localhost:3000').split(',')
 CSRF_TRUSTED_ORIGINS = CORS_ALLOWED_ORIGINS
 CORS_ALLOW_CREDENTIALS = True
 
