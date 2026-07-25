@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import {
   TrendingUp, TrendingDown, AlertTriangle, CheckCircle2,
-  ChevronDown, ChevronUp, Lightbulb, Zap, Info
+  ChevronDown, ChevronUp, Lightbulb, Zap
 } from 'lucide-react'
 
 const FEATURE_LABELS = {
@@ -77,6 +77,19 @@ function RecommendationCard({ rec, index }) {
               <h3 className="text-sm font-bold text-gray-900 leading-snug">
                 {rec.title}
               </h3>
+              {/* Value vs target pill */}
+              {rec.current_value !== undefined && (
+                <div className="flex items-center gap-2 mt-1.5">
+                  <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
+                    rec.state === 'bad' ? 'bg-red-50 text-red-600' : 'bg-emerald-50 text-emerald-600'
+                  }`}>
+                    Now: {rec.current_value}{rec.unit}
+                  </span>
+                  <span className="text-xs text-gray-400">
+                    Target: {rec.target_value}{rec.unit}
+                  </span>
+                </div>
+              )}
             </div>
           </div>
 
@@ -119,13 +132,6 @@ function RecommendationCard({ rec, index }) {
               </div>
             )}
 
-            {/* SHAP impact note */}
-            <div className="pl-[52px]">
-              <p className="text-xs text-gray-400 flex items-center gap-1">
-                <Info size={11} />
-                ML impact score: {rec.impact > 0 ? '+' : ''}{rec.impact?.toFixed(3)}
-              </p>
-            </div>
           </div>
         )}
       </div>

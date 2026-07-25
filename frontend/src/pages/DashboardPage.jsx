@@ -5,7 +5,6 @@ import HealthScoreGauge from '../components/dashboard/HealthScoreGauge'
 import ScoreTrendChart from '../components/dashboard/ScoreTrendChart'
 import KPICards from '../components/dashboard/KPICards'
 import Recommendations from '../components/dashboard/Recommendations'
-import ModelComparison from '../components/dashboard/ModelComparison'
 import ProfitLossCard from '../components/dashboard/ProfitLossCard'
 import Card from '../components/ui/Card'
 import Button from '../components/ui/Button'
@@ -119,7 +118,6 @@ export default function DashboardPage() {
             <Recommendations recommendations={latest.recommendations} />
           )}
 
-          <ModelComparison date={latest.date} />
         </>
       )}
     </div>

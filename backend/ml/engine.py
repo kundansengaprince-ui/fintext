@@ -26,115 +26,13 @@ FEATURE_NAMES = [
     'num_transactions',
 ]
 
-RECOMMENDATIONS = {
-    'expense_to_revenue_ratio': {
-        'high': {
-            'title': 'Expenses are eating your revenue',
-            'body': 'Your costs are taking up too much of what you earn. Start by auditing your top 3 expense categories — chances are supplier prices or staff scheduling can be tightened without affecting quality.',
-            'actions': [
-                'Renegotiate supplier contracts or find alternative vendors',
-                'Review weekly staff rosters against actual footfall',
-                'Cut or pause low-ROI marketing spend temporarily',
-            ],
-            'urgency': 'high',
-        },
-        'low': {
-            'title': 'Cost control is on point',
-            'body': 'Your expense-to-revenue ratio is healthy. You are keeping costs lean while generating solid revenue — this is a key driver of your health score.',
-            'actions': [
-                'Keep monitoring weekly to catch any creeping costs early',
-                'Consider reinvesting savings into staff training or equipment',
-            ],
-            'urgency': 'low',
-        },
-    },
-    'gross_profit_margin': {
-        'low': {
-            'title': 'Profit margin needs attention',
-            'body': 'After covering the cost of your food and beverages, not enough is left over. This usually means either your prices are too low or your ingredient costs are too high.',
-            'actions': [
-                'Review menu pricing — even a 5–10% increase on top sellers makes a big difference',
-                'Identify your highest-cost dishes and reduce portion waste',
-                'Negotiate bulk pricing with your main food suppliers',
-            ],
-            'urgency': 'high',
-        },
-        'high': {
-            'title': 'Gross margin is strong',
-            'body': 'You are keeping a healthy share of revenue after food and beverage costs. This gives you a solid foundation to cover overheads and generate profit.',
-            'actions': [
-                'Protect this by monitoring ingredient cost changes monthly',
-                'Introduce higher-margin items to your menu to push it even further',
-            ],
-            'urgency': 'low',
-        },
-    },
-    'customer_retention_rate': {
-        'low': {
-            'title': 'Customers are not coming back',
-            'body': 'Most of your customers are visiting only once. Winning a new customer costs 5x more than keeping an existing one — improving retention is one of the fastest ways to grow revenue without spending more.',
-            'actions': [
-                'Launch a simple loyalty card or points programme',
-                'Train floor staff to greet returning customers by name',
-                'Follow up on negative feedback within 24 hours',
-                'Offer a small incentive for a second visit (e.g. free drink on return)',
-            ],
-            'urgency': 'high',
-        },
-        'high': {
-            'title': 'Customers keep coming back',
-            'body': 'Your retention rate is excellent — a strong sign that customers enjoy the experience. This is one of the most valuable assets a restaurant can have.',
-            'actions': [
-                'Ask loyal customers for Google or social media reviews',
-                'Introduce a referral incentive to turn regulars into ambassadors',
-            ],
-            'urgency': 'low',
-        },
-    },
-    'inventory_turnover_rate': {
-        'low': {
-            'title': 'Stock is sitting too long',
-            'body': 'Inventory is not moving fast enough, which means money is tied up in stock and wastage risk is high. Slow turnover often signals over-ordering or menu items that are not selling.',
-            'actions': [
-                'Switch to smaller, more frequent supplier orders',
-                'Identify slow-moving items and remove or promote them',
-                'Implement a daily stock count for perishables',
-                'Use a FIFO (first in, first out) system in your kitchen',
-            ],
-            'urgency': 'medium',
-        },
-        'high': {
-            'title': 'Inventory is moving efficiently',
-            'body': 'Stock is turning over at a healthy rate, meaning you are ordering the right quantities and minimising waste. This directly protects your margins.',
-            'actions': [
-                'Keep reorder levels updated as seasonal demand shifts',
-                'Watch for any sudden drops that could signal stockouts',
-            ],
-            'urgency': 'low',
-        },
-    },
-    'total_sales_normalised': {
-        'low': {
-            'title': 'Daily sales are below potential',
-            'body': 'Revenue is not where it should be for a business of your size. This could be a footfall problem, a conversion problem, or a slow-period problem — each has a different fix.',
-            'actions': [
-                'Run a weekend promotion or happy hour to drive footfall',
-                'Train staff on upselling — suggesting starters, desserts, or drinks',
-                'Review your opening hours against actual peak times',
-                'Boost visibility with a Google Business profile update or social post',
-            ],
-            'urgency': 'high',
-        },
-        'high': {
-            'title': 'Sales volume is performing well',
-            'body': 'Daily revenue is strong. The focus now should be on making sure operations can handle the volume without quality slipping.',
-            'actions': [
-                'Ensure kitchen and service capacity matches peak demand',
-                'Track your busiest hours and staff accordingly',
-            ],
-            'urgency': 'low',
-        },
-    },
+# Benchmark targets for a healthy Kigali restaurant
+BENCHMARKS = {
+    'gross_profit_margin':      {'target': 65, 'critical': 35, 'unit': '%'},
+    'expense_to_revenue_ratio': {'target': 50, 'critical': 85, 'unit': '%'},
+    'customer_retention_rate':  {'target': 60, 'critical': 25, 'unit': '%'},
+    'inventory_turnover_rate':  {'target': 6,  'critical': 1.5, 'unit': 'x/month'},
+    'total_sales_normalised':   {'target': 1.0, 'critical': 0.3, 'unit': 'M RWF'},
 }
 
 
@@ -321,39 +219,178 @@ def compare_all_models(models: dict, kpis: dict) -> dict:
 
 
 def _generate_recommendations(kpis, shap_dict):
-    """Map SHAP-driven feature impacts to rich structured recommendations."""
+    """Generate context-aware recommendations using actual KPI values vs benchmarks."""
     recs = []
     sorted_features = sorted(shap_dict.items(), key=lambda x: abs(x[1]), reverse=True)
 
-    thresholds = {
-        'gross_profit_margin':      {'low': 45, 'high': 65},
-        'expense_to_revenue_ratio': {'high': 75, 'low': 50},
-        'customer_retention_rate':  {'low': 40, 'high': 60},
-        'inventory_turnover_rate':  {'low': 2.5, 'high': 6},
-        'total_sales_normalised':   {'low': 0.5, 'high': 1.2},
-    }
-
-    for feature, impact in sorted_features[:3]:
-        if feature not in RECOMMENDATIONS:
+    for feature, impact in sorted_features:
+        if feature not in BENCHMARKS:
             continue
         val = kpis.get(feature, 0)
-        t = thresholds.get(feature, {})
+        b = BENCHMARKS[feature]
+        target, critical, unit = b['target'], b['critical'], b['unit']
 
+        # Determine state and urgency based on distance from target
         if feature == 'expense_to_revenue_ratio':
-            state = 'high' if val > t.get('high', 75) else 'low'
+            gap = val - target  # positive = bad
+            is_bad = val > target
+            pct_off = round(abs(gap), 1)
+            if val >= critical:
+                urgency = 'high'
+            elif val > target:
+                urgency = 'medium'
+            else:
+                urgency = 'low'
         else:
-            state = 'low' if val < t.get('low', 50) else 'high'
+            gap = target - val  # positive = bad
+            is_bad = val < target
+            pct_off = round(abs(gap), 1)
+            if val <= critical:
+                urgency = 'high'
+            elif val < target:
+                urgency = 'medium'
+            else:
+                urgency = 'low'
 
-        rec_data = RECOMMENDATIONS[feature].get(state, {})
-        if rec_data:
-            recs.append({
-                'feature': feature,
-                'impact': round(impact, 3),
-                'state': state,
-                'urgency': rec_data.get('urgency', 'medium'),
-                'title': rec_data.get('title', ''),
-                'body': rec_data.get('body', ''),
-                'actions': rec_data.get('actions', []),
-            })
+        title, body, actions = _build_rec_content(feature, val, target, pct_off, unit, is_bad, urgency)
+
+        recs.append({
+            'feature': feature,
+            'impact': round(impact, 3),
+            'state': 'bad' if is_bad else 'good',
+            'urgency': urgency,
+            'current_value': round(val, 2),
+            'target_value': target,
+            'unit': unit,
+            'gap': round(gap, 2),
+            'title': title,
+            'body': body,
+            'actions': actions,
+        })
+
+        if len(recs) == 4:  # top 4 most impactful
+            break
 
     return recs
+
+
+def _build_rec_content(feature, val, target, pct_off, unit, is_bad, urgency):
+    """Build dynamic title, body and actions based on actual values."""
+
+    if feature == 'gross_profit_margin':
+        if is_bad:
+            title = f'Gross margin at {val:.1f}% — target is {target}%'
+            body = (
+                f'You are {pct_off}% below the healthy benchmark of {target}%. '
+                f'After food and beverage costs, too little revenue remains to cover overheads. '
+                f'Even a small price increase on your top 5 dishes can recover this quickly.'
+            )
+            actions = [
+                f'Increase prices on your 3 best-selling dishes by 8–12% — test for 2 weeks',
+                'Calculate cost-per-plate for your full menu and cut the 2 lowest-margin items',
+                'Negotiate a bulk deal with your main ingredient supplier (aim for 10% off)',
+                'Reduce portion sizes on high-cost ingredients by 5–8% without changing presentation',
+            ]
+        else:
+            title = f'Gross margin strong at {val:.1f}%'
+            body = f'You are {pct_off}% above the {target}% benchmark — excellent cost discipline on food and beverages.'
+            actions = [
+                'Introduce 2–3 premium menu items to push margin even higher',
+                'Lock in current supplier prices with a 3-month contract before costs rise',
+            ]
+
+    elif feature == 'expense_to_revenue_ratio':
+        if is_bad:
+            title = f'Expenses at {val:.1f}% of revenue — should be under {target}%'
+            body = (
+                f'For every 100 RWF you earn, {val:.0f} RWF goes to expenses — that is {pct_off}% above the safe threshold. '
+                f'At this rate, profitability is under serious pressure. '
+                f'Staff costs and supplier invoices are typically the fastest wins.'
+            )
+            actions = [
+                f'Audit your top 3 expense categories this week — identify anything above 15% of revenue',
+                'Reduce staff hours during off-peak times (typically 14:00–17:00 on weekdays)',
+                'Switch 2 high-cost ingredients to local Rwandan alternatives',
+                'Pause any non-essential subscriptions or services for 30 days',
+            ]
+        else:
+            title = f'Expense ratio healthy at {val:.1f}%'
+            body = f'Costs are well controlled at {val:.1f}% of revenue, {pct_off}% below the {target}% ceiling.'
+            actions = [
+                'Reinvest savings into staff training or a small marketing push',
+                'Set a monthly expense alert at {target}% to catch any drift early',
+            ]
+
+    elif feature == 'customer_retention_rate':
+        if is_bad:
+            title = f'Only {val:.0f}% of customers return — target is {target}%'
+            body = (
+                f'You are retaining {val:.0f}% of customers against a {target}% benchmark — a gap of {pct_off}%. '
+                f'Acquiring a new customer costs 5x more than keeping one. '
+                f'Even moving from {val:.0f}% to {min(val+15, target):.0f}% retention would significantly boost monthly revenue.'
+            )
+            actions = [
+                'Start a simple stamp-card loyalty programme — 10 visits = 1 free item',
+                'Train every staff member to greet returning customers by name',
+                'Send a WhatsApp follow-up to customers 3 days after their visit',
+                f'Offer a 10% discount on the next visit for anyone who has not returned in 14 days',
+            ]
+        else:
+            title = f'Strong retention at {val:.0f}%'
+            body = f'Customers are coming back — {val:.0f}% retention is {pct_off}% above the {target}% benchmark.'
+            actions = [
+                'Ask your top 20% most loyal customers for a Google review this week',
+                'Launch a referral programme — existing customers bring a friend, both get a discount',
+            ]
+
+    elif feature == 'inventory_turnover_rate':
+        if is_bad:
+            title = f'Inventory turning {val:.1f}x — target is {target}x'
+            body = (
+                f'Stock is turning over {val:.1f} times against a target of {target}x — {pct_off} turns below benchmark. '
+                f'Slow turnover means cash is locked in stock and spoilage risk is high. '
+                f'In a Kigali restaurant, perishables sitting more than 3 days are a direct cost.'
+            )
+            actions = [
+                'Order perishables every 3 days instead of weekly — smaller, fresher batches',
+                'Identify your 5 slowest-moving items and run a daily special to clear them',
+                'Implement FIFO strictly — label every delivery with arrival date',
+                'Do a daily 5-minute stock count on your top 10 perishable items',
+            ]
+        else:
+            title = f'Inventory turning efficiently at {val:.1f}x'
+            body = f'Stock is moving at {val:.1f}x, {pct_off} turns above the {target}x benchmark — waste is minimal.'
+            actions = [
+                'Update reorder points as you enter a new season to avoid stockouts',
+                'Monitor for sudden drops in turnover that could signal a slow-selling new item',
+            ]
+
+    elif feature == 'total_sales_normalised':
+        sales_rwf = val * 1_000_000
+        target_rwf = target * 1_000_000
+        if is_bad:
+            title = f'Daily sales at {sales_rwf/1000:.0f}K RWF — target is {target_rwf/1000:.0f}K RWF'
+            body = (
+                f'Revenue is {pct_off * 1_000_000 / 1000:.0f}K RWF below the daily benchmark. '
+                f'This could be a footfall issue, a slow-period problem, or a missed upsell opportunity. '
+                f'Each of these has a different fix — start by identifying your peak vs off-peak hours.'
+            )
+            actions = [
+                'Run a lunch special (12:00–14:00) at 15% off to drive midday footfall',
+                'Train staff to suggest one upsell per table — a drink, starter, or dessert',
+                'Post on Instagram/WhatsApp status every morning with today\'s special',
+                'Review your opening hours — are you open during Kigali\'s peak dining windows?',
+            ]
+        else:
+            title = f'Sales strong at {sales_rwf/1000:.0f}K RWF/day'
+            body = f'Daily revenue is {pct_off * 1_000_000 / 1000:.0f}K RWF above the benchmark — operations are generating solid volume.'
+            actions = [
+                'Ensure kitchen capacity can sustain this volume without quality dropping',
+                'Analyse your top-selling hours and make sure you are fully staffed then',
+            ]
+    else:
+        title = feature.replace('_', ' ').title()
+        body = f'Current value: {val:.2f}. Target: {target}.'
+        actions = []
+
+    return title, body, actions
