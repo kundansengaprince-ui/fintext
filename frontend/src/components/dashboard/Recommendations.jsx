@@ -1,8 +1,17 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import {
   TrendingUp, TrendingDown, AlertTriangle, CheckCircle2,
   ChevronDown, ChevronUp, Lightbulb, Zap
 } from 'lucide-react'
+
+// Format a metric value to 1 decimal place with its unit.
+// Strips "/month" suffix so units match the dashboard cards (e.g. "x" not "x/month").
+export const fmtVal = (n, unit = '') => {
+  const cleanUnit = unit.replace('/month', '')
+  const num = parseFloat(n)
+  if (isNaN(num)) return '—'
+  return `${num.toFixed(1)}${cleanUnit}`
+}
 
 const FEATURE_LABELS = {
   gross_profit_margin:      'Gross Profit Margin',
@@ -37,13 +46,23 @@ const URGENCY = {
   },
 }
 
-function RecommendationCard({ rec, index }) {
-  const [expanded, setExpanded] = useState(index === 0)
+function RecommendationCard({ rec, index, highlight }) {
+  const [expanded, setExpanded] = useState(index === 0 || highlight)
+  const cardRef = useRef(null)
   const urgency = URGENCY[rec.urgency] ?? URGENCY.medium
   const isPositive = rec.urgency === 'low'
 
+  useEffect(() => {
+    if (highlight) {
+      setExpanded(true)
+      cardRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    }
+  }, [highlight])
+
   return (
-    <div className={`bg-white rounded-2xl shadow-sm ${urgency.glow} border border-gray-100 overflow-hidden transition-all duration-200`}>
+    <div ref={cardRef} className={`bg-white rounded-2xl shadow-sm ${urgency.glow} border ${
+      highlight ? 'border-red-300 ring-2 ring-red-200' : 'border-gray-100'
+    } overflow-hidden transition-all duration-200`}>
       {/* Urgency bar */}
       <div className={`h-1 w-full ${urgency.bar}`} />
 
@@ -83,10 +102,10 @@ function RecommendationCard({ rec, index }) {
                   <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
                     rec.state === 'bad' ? 'bg-red-50 text-red-600' : 'bg-emerald-50 text-emerald-600'
                   }`}>
-                    Now: {rec.current_value}{rec.unit}
+                    Now: {fmtVal(rec.current_value, rec.unit)}
                   </span>
                   <span className="text-xs text-gray-400">
-                    Target: {rec.target_value}{rec.unit}
+                    Target: {fmtVal(rec.target_value, rec.unit)}
                   </span>
                 </div>
               )}
@@ -139,7 +158,7 @@ function RecommendationCard({ rec, index }) {
   )
 }
 
-export default function Recommendations({ recommendations = [] }) {
+export default function Recommendations({ recommendations = [], highlightFeature = null }) {
   const urgent = recommendations.filter(r => r.urgency === 'high')
   const rest   = recommendations.filter(r => r.urgency !== 'high')
   const sorted = [...urgent, ...rest]
@@ -181,7 +200,7 @@ export default function Recommendations({ recommendations = [] }) {
       </div>
 
       {sorted.map((rec, i) => (
-        <RecommendationCard key={rec.feature} rec={rec} index={i} />
+        <RecommendationCard key={rec.feature} rec={rec} index={i} highlight={rec.feature === highlightFeature} />
       ))}
     </div>
   )

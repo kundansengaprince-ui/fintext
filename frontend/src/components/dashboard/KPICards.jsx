@@ -1,13 +1,13 @@
 import { TrendingUp, Receipt, Users, Package } from 'lucide-react'
 import Card from '../ui/Card'
 
-const fmt = (n, prefix = '') =>
-  n != null ? `${prefix}${parseFloat(n).toLocaleString('en-RW', { maximumFractionDigits: 1 })}` : '—'
+const fmt = (n) =>
+  n != null ? parseFloat(n).toFixed(1) : '—'
 
 const kpis = (score) => [
   {
     label: 'Gross Profit Margin',
-    value: fmt(score?.gross_profit_margin, '') + (score?.gross_profit_margin != null ? '%' : ''),
+    value: score?.gross_profit_margin != null ? `${fmt(score.gross_profit_margin)}%` : '—',
     icon: TrendingUp,
     color: 'text-emerald-600',
     bg: 'bg-emerald-50',
@@ -15,7 +15,7 @@ const kpis = (score) => [
   },
   {
     label: 'Expense-to-Revenue',
-    value: fmt(score?.expense_to_revenue_ratio, '') + (score?.expense_to_revenue_ratio != null ? '%' : ''),
+    value: score?.expense_to_revenue_ratio != null ? `${fmt(score.expense_to_revenue_ratio)}%` : '—',
     icon: Receipt,
     color: 'text-orange-600',
     bg: 'bg-orange-50',
@@ -23,7 +23,7 @@ const kpis = (score) => [
   },
   {
     label: 'Customer Retention',
-    value: fmt(score?.customer_retention_rate, '') + (score?.customer_retention_rate != null ? '%' : ''),
+    value: score?.customer_retention_rate != null ? `${fmt(score.customer_retention_rate)}%` : '—',
     icon: Users,
     color: 'text-blue-600',
     bg: 'bg-blue-50',
@@ -31,7 +31,7 @@ const kpis = (score) => [
   },
   {
     label: 'Inventory Turnover',
-    value: fmt(score?.inventory_turnover_rate) + (score?.inventory_turnover_rate != null ? 'x' : ''),
+    value: score?.inventory_turnover_rate != null ? `${fmt(score.inventory_turnover_rate)}x` : '—',
     icon: Package,
     color: 'text-purple-600',
     bg: 'bg-purple-50',
