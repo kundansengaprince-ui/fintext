@@ -1,18 +1,18 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { ArrowLeft, CheckCircle } from 'lucide-react'
-import logo from '../assets/IMG_2569.PNG'
 import toast from 'react-hot-toast'
 import { submitClientRequest } from '../api'
+import AuthLayout, {
+  BrandLockup, AuthCard, AuthInput, AuthSelect, AuthTextarea,
+  AuthButton, AuthBranding, sectionLabel,
+} from '../components/auth/AuthLayout'
 
 const BUSINESS_TYPES = [
   { value: 'RESTAURANT', label: 'Restaurant' },
   { value: 'BAR',        label: 'Bar' },
   { value: 'CAFE',       label: 'Café' },
 ]
-
-const inputCls = 'w-full rounded-xl bg-white/10 border border-white/20 text-white placeholder-gray-500 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500'
-const labelCls = 'text-sm font-medium text-gray-300'
 
 export default function ContactPage() {
   const [form, setForm] = useState({
@@ -32,126 +32,79 @@ export default function ContactPage() {
       setSent(true)
     } catch {
       toast.error('Something went wrong. Please try again.')
-    } finally {
-      setLoading(false)
-    }
+    } finally { setLoading(false) }
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-indigo-950 to-gray-900 flex items-center justify-center p-4">
-      <div className="w-full max-w-lg">
+    <AuthLayout>
+      <BrandLockup
+        title="Get your business on FinText"
+        subtitle="Fill in your details and our team will reach out to onboard you"
+      />
 
-        <div className="flex flex-col items-center mb-8">
-          <div className="w-16 h-16 rounded-2xl overflow-hidden mb-4 shadow-lg shadow-indigo-900/50">
-            <img src={logo} alt="FinText logo" className="w-full h-full object-cover" />
-          </div>
-          <h1 className="text-2xl font-bold text-white">Get your business on Fintext</h1>
-          <p className="text-indigo-300 text-sm mt-1 text-center">
-            Fill in your details and our team will reach out to onboard you
-          </p>
-        </div>
-
-        <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-8">
-          {sent ? (
-            <div className="text-center space-y-4 py-4">
-              <div className="w-14 h-14 rounded-full bg-green-500/20 flex items-center justify-center mx-auto">
-                <CheckCircle size={28} className="text-green-400" />
-              </div>
-              <p className="text-white font-semibold text-lg">Request received!</p>
-              <p className="text-gray-400 text-sm leading-relaxed">
-                Thanks <span className="text-white">{form.contact_name}</span>. Our team will review your request and contact you at{' '}
-                <span className="text-white">{form.email}</span> within 1–2 business days.
-              </p>
-              <Link to="/login" className="inline-block mt-2 text-sm text-indigo-400 hover:text-indigo-300 transition-colors">
-                Back to sign in
-              </Link>
+      <AuthCard maxWidth={500}>
+        {sent ? (
+          <div style={{ textAlign: 'center', padding: '8px 0' }}>
+            <div style={{
+              width: 52, height: 52, borderRadius: '50%',
+              background: 'rgba(14,59,46,0.08)', border: '1.5px solid rgba(14,59,46,0.2)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px',
+            }}>
+              <CheckCircle size={22} style={{ color: '#0E3B2E' }} />
             </div>
-          ) : (
-            <form onSubmit={submit} className="space-y-4">
-              <p className="text-xs font-semibold text-indigo-400 uppercase tracking-wider">Your business</p>
+            <p style={{ fontFamily: "'Fraunces', Georgia, serif", fontSize: 20, fontWeight: 500, color: '#1A2420', margin: '0 0 10px' }}>
+              Request received!
+            </p>
+            <p style={{ fontSize: 13.5, color: '#6B7B74', lineHeight: 1.7, margin: '0 0 20px' }}>
+              Thanks <strong style={{ color: '#1A2420' }}>{form.contact_name}</strong>. Our team will review your request and contact you at{' '}
+              <strong style={{ color: '#1A2420' }}>{form.email}</strong> within 1–2 business days.
+            </p>
+            <Link to="/login" style={{ fontSize: 13, color: '#C9A15C', fontWeight: 600, textDecoration: 'none' }}>
+              Back to sign in
+            </Link>
+          </div>
+        ) : (
+          <form onSubmit={submit} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+            <p style={sectionLabel}>Your business</p>
 
-              <div className="flex flex-col gap-1">
-                <label className={labelCls}>Business name</label>
-                <input className={inputCls} value={form.business_name} onChange={set('business_name')} placeholder="e.g. The Grand Café" required />
-              </div>
+            <AuthInput label="Business name" value={form.business_name} onChange={set('business_name')} placeholder="e.g. The Grand Café" required />
+            <AuthSelect label="Business type" value={form.business_type} onChange={set('business_type')}>
+              {BUSINESS_TYPES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
+            </AuthSelect>
 
-              <div className="flex flex-col gap-1">
-                <label className={labelCls}>Business type</label>
-                <select
-                  className="w-full rounded-xl bg-gray-800 border border-white/20 text-white px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                  value={form.business_type}
-                  onChange={set('business_type')}
-                >
-                  {BUSINESS_TYPES.map(t => (
-                    <option key={t.value} value={t.value} className="bg-gray-800">{t.label}</option>
-                  ))}
-                </select>
-              </div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+              <AuthInput label="Location" value={form.location} onChange={set('location')} placeholder="City, Country" />
+              <AuthInput label="Phone" value={form.phone} onChange={set('phone')} placeholder="+250 7xx xxx xxx" />
+            </div>
 
-              <div className="grid grid-cols-2 gap-3">
-                <div className="flex flex-col gap-1">
-                  <label className={labelCls}>Location</label>
-                  <input className={inputCls} value={form.location} onChange={set('location')} placeholder="City, Country" />
-                </div>
-                <div className="flex flex-col gap-1">
-                  <label className={labelCls}>Phone</label>
-                  <input className={inputCls} value={form.phone} onChange={set('phone')} placeholder="+250 7xx xxx xxx" />
-                </div>
-              </div>
+            <p style={{ ...sectionLabel, marginTop: 6 }}>Contact person</p>
 
-              <p className="text-xs font-semibold text-indigo-400 uppercase tracking-wider pt-2">Contact person</p>
+            <AuthInput label="Your name" value={form.contact_name} onChange={set('contact_name')} placeholder="Full name" required />
+            <AuthInput label="Email address" type="email" value={form.email} onChange={set('email')} placeholder="you@example.com" required />
+            <AuthTextarea
+              label={<>Message <span style={{ color: '#9AABA4', fontWeight: 400 }}>(optional)</span></>}
+              rows={3}
+              value={form.message}
+              onChange={set('message')}
+              placeholder="Tell us a bit about your business and what you're looking for…"
+            />
 
-              <div className="flex flex-col gap-1">
-                <label className={labelCls}>Your name</label>
-                <input className={inputCls} value={form.contact_name} onChange={set('contact_name')} placeholder="Full name" required />
-              </div>
-
-              <div className="flex flex-col gap-1">
-                <label className={labelCls}>Email address</label>
-                <input type="email" className={inputCls} value={form.email} onChange={set('email')} placeholder="you@example.com" required />
-              </div>
-
-              <div className="flex flex-col gap-1">
-                <label className={labelCls}>Message <span className="text-gray-500 font-normal">(optional)</span></label>
-                <textarea
-                  className={`${inputCls} resize-none`}
-                  rows={3}
-                  value={form.message}
-                  onChange={set('message')}
-                  placeholder="Tell us a bit about your business and what you're looking for…"
-                />
-              </div>
-
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full bg-indigo-600 hover:bg-indigo-700 disabled:opacity-60 disabled:cursor-not-allowed text-white font-semibold py-3 rounded-xl transition-colors"
-              >
-                {loading
-                  ? <span className="flex items-center justify-center gap-2">
-                      <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
-                      </svg>
-                      Submitting…
-                    </span>
-                  : 'Submit request'
-                }
-              </button>
-            </form>
-          )}
-        </div>
-
-        {!sent && (
-          <Link
-            to="/login"
-            className="flex items-center justify-center gap-2 text-gray-500 hover:text-gray-300 text-sm mt-6 transition-colors"
-          >
-            <ArrowLeft size={15} />
-            Back to sign in
-          </Link>
+            <div style={{ marginTop: 4 }}>
+              <AuthButton loading={loading ? 'Submitting…' : false}>Submit request</AuthButton>
+            </div>
+          </form>
         )}
-      </div>
-    </div>
+      </AuthCard>
+
+      {!sent && (
+        <Link to="/login" style={{
+          display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+          fontSize: 13, color: '#9AABA4', textDecoration: 'none', marginTop: 20,
+        }}>
+          <ArrowLeft size={14} /> Back to sign in
+        </Link>
+      )}
+      <AuthBranding />
+    </AuthLayout>
   )
 }

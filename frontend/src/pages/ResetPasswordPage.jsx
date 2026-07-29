@@ -1,8 +1,11 @@
 import { useState } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
-import logo from '../assets/IMG_2569.PNG'
+import { ArrowLeft } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { resetPassword } from '../api'
+import AuthLayout, {
+  BrandLockup, AuthCard, AuthInput, AuthButton, AuthBranding,
+} from '../components/auth/AuthLayout'
 
 export default function ResetPasswordPage() {
   const { uid, token } = useParams()
@@ -13,10 +16,7 @@ export default function ResetPasswordPage() {
 
   const submit = async (e) => {
     e.preventDefault()
-    if (password !== confirm) {
-      toast.error('Passwords do not match.')
-      return
-    }
+    if (password !== confirm) { toast.error('Passwords do not match.'); return }
     setLoading(true)
     try {
       await resetPassword({ uid, token, password })
@@ -24,76 +24,52 @@ export default function ResetPasswordPage() {
       navigate('/login')
     } catch (err) {
       const detail = err.response?.data?.detail
-      const msg = Array.isArray(detail) ? detail.join(' ') : detail || 'Reset failed. The link may have expired.'
-      toast.error(msg)
-    } finally {
-      setLoading(false)
-    }
+      toast.error(Array.isArray(detail) ? detail.join(' ') : detail || 'Reset failed. The link may have expired.')
+    } finally { setLoading(false) }
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-indigo-950 to-gray-900 flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        <div className="flex flex-col items-center mb-8">
-          <div className="w-16 h-16 rounded-2xl overflow-hidden mb-4 shadow-lg shadow-indigo-900/50">
-            <img src={logo} alt="FinText logo" className="w-full h-full object-cover" />
-          </div>
-          <h1 className="text-2xl font-bold text-white">Set new password</h1>
-          <p className="text-indigo-300 text-sm mt-1">Choose a strong password for your account</p>
-        </div>
+    <AuthLayout>
+      <BrandLockup
+        title="Set new password"
+        subtitle="Choose a strong password for your account"
+      />
 
-        <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-8">
-          <form onSubmit={submit} className="space-y-4">
-            <div className="flex flex-col gap-1">
-              <label className="text-sm font-medium text-gray-300">New password</label>
-              <input
-                type="password"
-                value={password}
-                onChange={e => setPassword(e.target.value)}
-                className="w-full rounded-xl bg-white/10 border border-white/20 text-white placeholder-gray-500 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                placeholder="Min. 8 characters"
-                required
-                minLength={8}
-                autoFocus
-              />
-            </div>
-            <div className="flex flex-col gap-1">
-              <label className="text-sm font-medium text-gray-300">Confirm password</label>
-              <input
-                type="password"
-                value={confirm}
-                onChange={e => setConfirm(e.target.value)}
-                className="w-full rounded-xl bg-white/10 border border-white/20 text-white placeholder-gray-500 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                placeholder="Repeat your password"
-                required
-              />
-            </div>
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-indigo-600 hover:bg-indigo-700 disabled:opacity-60 disabled:cursor-not-allowed text-white font-semibold py-3 rounded-xl transition-colors"
-            >
-              {loading
-                ? <span className="flex items-center justify-center gap-2">
-                    <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
-                    </svg>
-                    Resetting…
-                  </span>
-                : 'Reset password'
-              }
-            </button>
-          </form>
-        </div>
+      <AuthCard>
+        <form onSubmit={submit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+          <AuthInput
+            label="New password"
+            type="password"
+            value={password}
+            onChange={e => setPassword(e.target.value)}
+            placeholder="Min. 8 characters"
+            required
+            minLength={8}
+            autoFocus
+          />
+          <AuthInput
+            label="Confirm password"
+            type="password"
+            value={confirm}
+            onChange={e => setConfirm(e.target.value)}
+            placeholder="Repeat your password"
+            required
+            error={confirm && password !== confirm}
+          />
+          {confirm && password !== confirm && (
+            <p style={{ fontSize: 12, color: '#9C4B3E', margin: '-8px 0 0' }}>Passwords do not match.</p>
+          )}
+          <AuthButton loading={loading ? 'Resetting…' : false}>Reset password</AuthButton>
+        </form>
+      </AuthCard>
 
-        <Link
-          to="/login"
-          className="flex items-center justify-center gap-2 text-gray-500 hover:text-gray-300 text-sm mt-6 transition-colors"
-        >
-          Back to sign in
-        </Link>
-      </div>
-    </div>
+      <Link to="/login" style={{
+        display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+        fontSize: 13, color: '#9AABA4', textDecoration: 'none', marginTop: 20,
+      }}>
+        <ArrowLeft size={14} /> Back to sign in
+      </Link>
+      <AuthBranding />
+    </AuthLayout>
   )
 }
