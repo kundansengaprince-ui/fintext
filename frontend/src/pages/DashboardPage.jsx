@@ -39,16 +39,16 @@ function ExecutiveSummary({ score, topRec }) {
   let text, style
   if (profitable && topRec?.urgency === 'high') {
     text  = `Your business is profitable but losing money to ${feature.toLowerCase()} - fixing this is your #1 lever this month.`
-    style = 'bg-amber-50 border-amber-200 text-amber-800'
+    style = 'bg-[#F6EDDA] border-[#E9D4A6] text-[#8A6A2E]'
   } else if (profitable) {
     text  = `Your business is profitable and healthy - keep monitoring ${feature ?? 'your key metrics'} to stay on track.`
-    style = 'bg-emerald-50 border-emerald-200 text-emerald-800'
+    style = 'bg-[#E3EDE7] border-[#C7DBCE] text-[#0E3B2E]'
   } else if (topRec?.urgency === 'high') {
     text  = `Your business is currently operating at a loss, largely driven by ${feature.toLowerCase()} - this needs immediate attention.`
-    style = 'bg-red-50 border-red-200 text-red-800'
+    style = 'bg-[#F7E7E4] border-[#E3C0BA] text-[#9C4B3E]'
   } else {
     text  = `Your business is currently operating at a loss - review your Reports page for a full breakdown.`
-    style = 'bg-gray-50 border-gray-200 text-gray-700'
+    style = 'bg-[#FAFBF9] border-[#EAEFEC] text-[#7A9184]'
   }
 
   return (
@@ -64,7 +64,7 @@ function BiggestDrag({ recommendations = [], onClickFeature }) {
 
   if (top.urgency === 'low') {
     return (
-      <p className="text-xs text-emerald-600 font-medium mt-3">
+      <p className="text-xs text-[#0E3B2E] font-medium mt-3">
         ✓ No urgent issues - strongest metric: {top.title}
       </p>
     )
@@ -77,9 +77,9 @@ function BiggestDrag({ recommendations = [], onClickFeature }) {
   return (
     <button
       onClick={() => onClickFeature(top.feature)}
-      className="mt-3 flex items-center gap-1 text-xs font-medium text-red-600 hover:text-red-700 transition-colors"
+      className="mt-3 flex items-center gap-1 text-xs font-medium text-[#9C4B3E] hover:text-[#7A3A2F] transition-colors"
     >
-      <span className="text-gray-500">Biggest drag:</span>
+      <span className="text-[#7A9184]">Biggest drag:</span>
       <span>{label} ({current} vs {target} target)</span>
       <ArrowRight size={13} />
     </button>
@@ -121,24 +121,25 @@ export default function DashboardPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Business Health Dashboard</h1>
-          <p className="text-sm text-gray-500 mt-0.5">{business?.name ?? 'Business Health Dashboard'}</p>
+          <h1 className="text-2xl font-bold text-[#0A2820]" style={{ fontFamily: "'Fraunces', serif" }}>Business Health Dashboard</h1>
+          <p className="text-sm text-[#7A9184] mt-0.5">{business?.name ?? 'Business Health Dashboard'}</p>
         </div>
         {can.computeScore && (
           <div className="flex items-center gap-3">
-            <div className="flex items-center gap-2 bg-white border border-gray-200 rounded-xl px-3 py-2">
-              <Calendar size={16} className="text-gray-400" />
+            <div className="flex items-center gap-2 bg-white border border-[#EAEFEC] rounded-xl px-3 py-2">
+              <Calendar size={16} className="text-[#7A9184]" />
               <input
                 type="date"
                 value={targetDate}
                 onChange={e => setTargetDate(e.target.value)}
-                className="text-sm text-gray-700 bg-transparent focus:outline-none"
+                className="text-sm text-[#16221D] bg-transparent focus:outline-none"
               />
             </div>
             <Button
               onClick={() => compute.mutate(targetDate)}
               disabled={compute.isPending}
               size="md"
+              className="bg-[#0E3B2E] text-white"
             >
               <RefreshCw size={15} className={compute.isPending ? 'animate-spin' : ''} />
               {compute.isPending ? 'Computing…' : 'Compute Score'}
@@ -155,8 +156,8 @@ export default function DashboardPage() {
         </div>
       ) : !latest ? (
         <Card className="p-12 text-center">
-          <p className="text-gray-500 text-lg font-medium">No health score computed yet.</p>
-          <p className="text-gray-400 text-sm mt-2">
+          <p className="text-[#7A9184] text-lg font-medium">No health score computed yet.</p>
+          <p className="text-[#B7C4BC] text-sm mt-2">
             Add sales, expenses, inventory, and customer data, then click <strong>Compute Score</strong>.
           </p>
         </Card>
@@ -166,8 +167,8 @@ export default function DashboardPage() {
 
           {/* Hero row - health score centrepiece */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <Card className="lg:col-span-1 flex flex-col items-center justify-center py-8 bg-gradient-to-b from-indigo-50 to-white border-indigo-100">
-              <p className="text-xs font-semibold text-indigo-400 uppercase tracking-widest mb-3">Business Health Score</p>
+            <Card className="lg:col-span-1 flex flex-col items-center justify-center py-8 bg-gradient-to-b from-[#EAF2EE] to-white border-[#D7E6DE]">
+              <p className="text-xs font-semibold text-[#0E3B2E] uppercase tracking-widest mb-3">Business Health Score</p>
               <HealthScoreGauge score={latest.score} label={latest.label} trend={latest.trend} />
               <BiggestDrag
                 recommendations={latest.recommendations}
@@ -177,19 +178,19 @@ export default function DashboardPage() {
                 }}
               />
               <div className="mt-4 text-center">
-                <p className="text-xs text-gray-400">
+                <p className="text-xs text-[#B7C4BC]">
                   Last computed: {new Date(latest.updated_at).toLocaleString('en-RW', {
                     dateStyle: 'medium', timeStyle: 'short'
                   })}
                 </p>
-                <p className="text-xs text-gray-400 mt-0.5">For date: {latest.date}</p>
+                <p className="text-xs text-[#B7C4BC] mt-0.5">For date: {latest.date}</p>
               </div>
             </Card>
 
             <div className="lg:col-span-2 flex flex-col gap-6">
               <ProfitLossCard score={latest} />
               <Card className="flex-1">
-                <h2 className="text-sm font-semibold text-gray-700 mb-4">30-Day Score Trend</h2>
+                <h2 className="text-sm font-semibold text-[#16221D] mb-4">30-Day Score Trend</h2>
                 <ScoreTrendChart data={history} />
               </Card>
             </div>
