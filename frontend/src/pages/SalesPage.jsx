@@ -12,16 +12,19 @@ import { useAuth } from '../context/AuthContext'
 const fmt = (n) => Number(n).toLocaleString('en-RW')
 const PAGE_SIZE = 15
 
+const inputCls = 'text-sm px-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0E3B2E] focus:border-transparent'
+const inputStyle = { border: '1px solid #E2E9E5', color: '#0A2820', background: '#fff' }
+
 export default function SalesPage() {
   const { can } = useAuth()
   const qc = useQueryClient()
-  const [showForm, setShowForm]       = useState(false)
-  const [editing, setEditing]         = useState(null)
+  const [showForm, setShowForm]           = useState(false)
+  const [editing, setEditing]             = useState(null)
   const [confirmDelete, setConfirmDelete] = useState(null)
-  const [search, setSearch]           = useState('')
-  const [dateFrom, setDateFrom]       = useState('')
-  const [dateTo, setDateTo]           = useState('')
-  const [page, setPage]               = useState(1)
+  const [search, setSearch]               = useState('')
+  const [dateFrom, setDateFrom]           = useState('')
+  const [dateTo, setDateTo]               = useState('')
+  const [page, setPage]                   = useState(1)
 
   const params = {
     ...(dateFrom && { date_from: dateFrom }),
@@ -34,121 +37,123 @@ export default function SalesPage() {
   })
 
   const allRecords = data ?? []
-  const filtered = search
-    ? allRecords.filter(r => r.date.includes(search))
-    : allRecords
-
+  const filtered = search ? allRecords.filter(r => r.date.includes(search)) : allRecords
   const totalPages = Math.ceil(filtered.length / PAGE_SIZE)
   const records = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
   const totalRevenue = allRecords.reduce((s, r) => s + parseFloat(r.total_sales || 0), 0)
 
   const del = useMutation({
     mutationFn: (id) => deleteSale(id),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ['sales'] })
-      toast.success('Record deleted.')
-      setConfirmDelete(null)
-    },
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ['sales'] }); toast.success('Record deleted.'); setConfirmDelete(null) },
     onError: () => toast.error('Could not delete record.'),
   })
 
-  const openAdd  = () => { setEditing(null); setShowForm(true) }
-  const openEdit = (r) => { setEditing(r); setShowForm(true) }
+  const openAdd   = () => { setEditing(null); setShowForm(true) }
+  const openEdit  = (r) => { setEditing(r); setShowForm(true) }
   const closeForm = () => { setShowForm(false); setEditing(null) }
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Sales Records</h1>
-          <p className="text-sm text-gray-500 mt-0.5">Daily revenue and transaction data</p>
+          <h1 className="text-2xl font-bold" style={{ fontFamily: "'Fraunces', serif", color: '#0A2820' }}>Sales Records</h1>
+          <p className="text-sm mt-0.5" style={{ color: '#7A9184' }}>Daily revenue and transaction data</p>
         </div>
-        {can.editSales && (
-          <Button onClick={openAdd}><Plus size={15} /> Add Record</Button>
-        )}
+        {can.editSales && <Button onClick={openAdd}><Plus size={15} /> Add Record</Button>}
       </div>
 
       {allRecords.length > 0 && (
         <div className="grid grid-cols-3 gap-4">
-          <Card className="p-4">
-            <p className="text-xs text-gray-500 uppercase tracking-wide">Total Revenue</p>
-            <p className="text-2xl font-bold text-gray-900 mt-1">RWF {fmt(totalRevenue)}</p>
-          </Card>
-          <Card className="p-4">
-            <p className="text-xs text-gray-500 uppercase tracking-wide">Records</p>
-            <p className="text-2xl font-bold text-gray-900 mt-1">{allRecords.length} days</p>
-          </Card>
-          <Card className="p-4">
-            <p className="text-xs text-gray-500 uppercase tracking-wide">Avg Daily Sales</p>
-            <p className="text-2xl font-bold text-gray-900 mt-1">
-              RWF {fmt(allRecords.length ? (totalRevenue / allRecords.length).toFixed(0) : 0)}
-            </p>
-          </Card>
+          {[
+            ['Total Revenue', `RWF ${fmt(totalRevenue)}`],
+            ['Records', `${allRecords.length} days`],
+            ['Avg Daily Sales', `RWF ${fmt(allRecords.length ? (totalRevenue / allRecords.length).toFixed(0) : 0)}`],
+          ].map(([label, value]) => (
+            <Card key={label} className="p-4">
+              <p className="text-xs uppercase tracking-wide" style={{ color: '#7A9184' }}>{label}</p>
+              <p className="text-2xl font-bold mt-1" style={{ fontFamily: "'IBM Plex Mono', monospace", color: '#0A2820' }}>{value}</p>
+            </Card>
+          ))}
         </div>
       )}
 
-      {/* Filters */}
       <Card className="px-4 py-3">
         <div className="flex items-center gap-3 flex-wrap">
           <div className="relative flex-1 min-w-[160px]">
-            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: '#B7C4BC' }} />
             <input value={search} onChange={e => { setSearch(e.target.value); setPage(1) }}
-              placeholder="Search by date..."
-              className="w-full pl-8 pr-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+              placeholder="Search by date..." className={`w-full pl-8 pr-3 ${inputCls}`} style={inputStyle} />
           </div>
           <div className="flex items-center gap-2">
             <input type="date" value={dateFrom} onChange={e => { setDateFrom(e.target.value); setPage(1) }}
-              className="text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" />
-            <span className="text-gray-400 text-sm">to</span>
+              className={inputCls} style={inputStyle} />
+            <span className="text-sm" style={{ color: '#B7C4BC' }}>to</span>
             <input type="date" value={dateTo} onChange={e => { setDateTo(e.target.value); setPage(1) }}
-              className="text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+              className={inputCls} style={inputStyle} />
           </div>
           {(search || dateFrom || dateTo) && (
             <button onClick={() => { setSearch(''); setDateFrom(''); setDateTo(''); setPage(1) }}
-              className="text-xs text-indigo-600 hover:underline">Clear</button>
+              className="text-xs font-medium" style={{ color: '#0E3B2E' }}>Clear</button>
           )}
         </div>
       </Card>
 
       <Card>
         {isLoading ? (
-          <div className="p-8 text-center text-gray-400">Loading...</div>
+          <div className="p-8 text-center text-sm" style={{ color: '#B7C4BC' }}>Loading...</div>
         ) : records.length === 0 ? (
           <div className="p-12 text-center">
-            <TrendingUp size={40} className="mx-auto text-gray-300 mb-3" />
-            <p className="text-gray-500 font-medium">No records found.</p>
+            <TrendingUp size={40} className="mx-auto mb-3" style={{ color: '#E2E9E5' }} />
+            <p className="font-medium" style={{ color: '#7A9184' }}>No records found.</p>
           </div>
         ) : (
           <>
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-gray-100">
-                    <th className="text-left px-4 py-3 font-medium text-gray-500">Date</th>
-                    <th className="text-right px-4 py-3 font-medium text-gray-500">Total Sales</th>
-                    <th className="text-right px-4 py-3 font-medium text-gray-500">Food</th>
-                    <th className="text-right px-4 py-3 font-medium text-gray-500">Beverages</th>
-                    <th className="text-right px-4 py-3 font-medium text-gray-500">Transactions</th>
-                    <th className="text-right px-4 py-3 font-medium text-gray-500">Avg/Txn</th>
+                  <tr style={{ borderBottom: '1px solid #E2E9E5' }}>
+                    {['Date','Total Sales','Food','Beverages','Transactions','Avg/Txn'].map((h, i) => (
+                      <th key={h} className={`px-4 py-3 font-medium ${i > 0 ? 'text-right' : 'text-left'}`}
+                        style={{ color: '#7A9184' }}>{h}</th>
+                    ))}
                     {can.editSales && <th className="px-4 py-3" />}
                   </tr>
                 </thead>
                 <tbody>
                   {records.map(r => (
-                    <tr key={r.id} className="border-b border-gray-50 hover:bg-gray-50">
-                      <td className="px-4 py-3 font-medium text-gray-800">{r.date}</td>
-                      <td className="px-4 py-3 text-right font-semibold text-gray-900">RWF {fmt(r.total_sales)}</td>
-                      <td className="px-4 py-3 text-right text-gray-600">{r.food_sales ? `RWF ${fmt(r.food_sales)}` : '—'}</td>
-                      <td className="px-4 py-3 text-right text-gray-600">{r.beverage_sales ? `RWF ${fmt(r.beverage_sales)}` : '—'}</td>
-                      <td className="px-4 py-3 text-right text-gray-600">{r.num_transactions ?? '—'}</td>
-                      <td className="px-4 py-3 text-right text-gray-600">
+                    <tr key={r.id} style={{ borderBottom: '1px solid #FAFBF9' }}
+                      onMouseEnter={e => e.currentTarget.style.background = '#FAFBF9'}
+                      onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
+                      <td className="px-4 py-3 font-medium" style={{ color: '#0A2820' }}>{r.date}</td>
+                      <td className="px-4 py-3 text-right font-semibold"
+                        style={{ fontFamily: "'IBM Plex Mono', monospace", color: '#0A2820' }}>RWF {fmt(r.total_sales)}</td>
+                      <td className="px-4 py-3 text-right" style={{ color: '#7A9184' }}>
+                        {r.food_sales ? `RWF ${fmt(r.food_sales)}` : '—'}
+                      </td>
+                      <td className="px-4 py-3 text-right" style={{ color: '#7A9184' }}>
+                        {r.beverage_sales ? `RWF ${fmt(r.beverage_sales)}` : '—'}
+                      </td>
+                      <td className="px-4 py-3 text-right" style={{ color: '#7A9184' }}>{r.num_transactions ?? '—'}</td>
+                      <td className="px-4 py-3 text-right" style={{ color: '#7A9184' }}>
                         {r.avg_transaction_value ? `RWF ${fmt(parseFloat(r.avg_transaction_value).toFixed(0))}` : '—'}
                       </td>
                       {can.editSales && (
                         <td className="px-4 py-3">
                           <div className="flex items-center justify-end gap-2">
-                            <button onClick={() => openEdit(r)} className="p-1.5 rounded-lg text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 transition-colors"><Pencil size={14} /></button>
-                            <button onClick={() => setConfirmDelete(r)} className="p-1.5 rounded-lg text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors"><Trash2 size={14} /></button>
+                            <button onClick={() => openEdit(r)}
+                              className="p-1.5 rounded-lg transition-colors"
+                              style={{ color: '#B7C4BC' }}
+                              onMouseEnter={e => { e.currentTarget.style.color = '#0E3B2E'; e.currentTarget.style.background = 'rgba(14,59,46,0.07)' }}
+                              onMouseLeave={e => { e.currentTarget.style.color = '#B7C4BC'; e.currentTarget.style.background = 'transparent' }}>
+                              <Pencil size={14} />
+                            </button>
+                            <button onClick={() => setConfirmDelete(r)}
+                              className="p-1.5 rounded-lg transition-colors"
+                              style={{ color: '#B7C4BC' }}
+                              onMouseEnter={e => { e.currentTarget.style.color = '#9C4B3E'; e.currentTarget.style.background = 'rgba(156,75,62,0.07)' }}
+                              onMouseLeave={e => { e.currentTarget.style.color = '#B7C4BC'; e.currentTarget.style.background = 'transparent' }}>
+                              <Trash2 size={14} />
+                            </button>
                           </div>
                         </td>
                       )}
@@ -159,13 +164,17 @@ export default function SalesPage() {
             </div>
 
             {totalPages > 1 && (
-              <div className="flex items-center justify-between px-4 py-3 border-t border-gray-100">
-                <p className="text-xs text-gray-500">{filtered.length} records · page {page} of {totalPages}</p>
+              <div className="flex items-center justify-between px-4 py-3" style={{ borderTop: '1px solid #E2E9E5' }}>
+                <p className="text-xs" style={{ color: '#B7C4BC' }}>{filtered.length} records · page {page} of {totalPages}</p>
                 <div className="flex items-center gap-2">
                   <button onClick={() => setPage(p => p - 1)} disabled={page === 1}
-                    className="p-1.5 rounded-lg text-gray-400 hover:text-gray-700 disabled:opacity-30"><ChevronLeft size={16} /></button>
+                    className="p-1.5 rounded-lg disabled:opacity-30" style={{ color: '#7A9184' }}>
+                    <ChevronLeft size={16} />
+                  </button>
                   <button onClick={() => setPage(p => p + 1)} disabled={page === totalPages}
-                    className="p-1.5 rounded-lg text-gray-400 hover:text-gray-700 disabled:opacity-30"><ChevronRight size={16} /></button>
+                    className="p-1.5 rounded-lg disabled:opacity-30" style={{ color: '#7A9184' }}>
+                    <ChevronRight size={16} />
+                  </button>
                 </div>
               </div>
             )}
@@ -178,7 +187,9 @@ export default function SalesPage() {
       </Modal>
 
       <Modal isOpen={!!confirmDelete} onClose={() => setConfirmDelete(null)} title="Delete Record">
-        <p className="text-gray-600 mb-6">Delete the sales record for <strong>{confirmDelete?.date}</strong>? This cannot be undone.</p>
+        <p className="mb-6" style={{ color: '#7A9184' }}>
+          Delete the sales record for <strong style={{ color: '#0A2820' }}>{confirmDelete?.date}</strong>? This cannot be undone.
+        </p>
         <div className="flex justify-end gap-3">
           <Button variant="secondary" onClick={() => setConfirmDelete(null)}>Cancel</Button>
           <Button variant="danger" disabled={del.isPending} onClick={() => del.mutate(confirmDelete.id)}>

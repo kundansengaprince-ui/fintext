@@ -10,12 +10,12 @@ const today = () => new Date().toISOString().split('T')[0]
 const daysAgo = (n) => new Date(Date.now() - n * 86400000).toISOString().split('T')[0]
 
 const REPORT_META = {
-  sales:           { icon: TrendingUp, color: 'bg-indigo-50 text-indigo-600',  border: 'border-indigo-100' },
-  expenses:        { icon: Receipt,    color: 'bg-orange-50 text-orange-600',  border: 'border-orange-100' },
-  inventory:       { icon: Package,    color: 'bg-purple-50 text-purple-600',  border: 'border-purple-100' },
-  customers:       { icon: Users,      color: 'bg-blue-50 text-blue-600',      border: 'border-blue-100'   },
-  'health-scores': { icon: Activity,   color: 'bg-emerald-50 text-emerald-600',border: 'border-emerald-100'},
-  full:            { icon: FileText,   color: 'bg-gray-100 text-gray-600',     border: 'border-gray-200'   },
+  sales:           { icon: TrendingUp },
+  expenses:        { icon: Receipt    },
+  inventory:       { icon: Package    },
+  customers:       { icon: Users      },
+  'health-scores': { icon: Activity   },
+  full:            { icon: FileText   },
 }
 
 async function downloadReport(key, dateFrom, dateTo) {
@@ -36,17 +36,21 @@ async function downloadReport(key, dateFrom, dateTo) {
   }
 }
 
+const inputCls = 'rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#0E3B2E] focus:border-transparent'
+const inputStyle = { border: '1px solid #E2E9E5', color: '#0A2820', background: '#fff' }
+
 function DateRangeBar({ dateFrom, dateTo, setDateFrom, setDateTo }) {
   const dayCount = Math.round((new Date(dateTo) - new Date(dateFrom)) / 86400000) + 1
 
   return (
     <Card>
-      <div className="px-6 py-4 border-b border-gray-100">
+      <div className="px-6 py-4" style={{ borderBottom: '1px solid #E2E9E5' }}>
         <div className="flex items-center gap-2">
-          <Calendar size={15} className="text-indigo-500" />
-          <p className="text-sm font-semibold text-gray-800">Select Date Range</p>
+          <Calendar size={15} style={{ color: '#7A9184' }} />
+          <p className="text-sm font-semibold" style={{ color: '#0A2820' }}>Select Date Range</p>
           {dayCount > 0 && (
-            <span className="ml-auto text-xs font-medium text-indigo-600 bg-indigo-50 px-2.5 py-0.5 rounded-full">
+            <span className="ml-auto text-xs font-medium px-2.5 py-0.5 rounded-full"
+              style={{ background: 'rgba(14,59,46,0.08)', color: '#0E3B2E' }}>
               {dayCount} day{dayCount !== 1 ? 's' : ''}
             </span>
           )}
@@ -55,32 +59,28 @@ function DateRangeBar({ dateFrom, dateTo, setDateFrom, setDateTo }) {
 
       <div className="px-6 py-4 flex items-center gap-6 flex-wrap">
         <div className="flex items-center gap-3">
-          <label className="text-xs font-medium text-gray-500 uppercase tracking-wide w-6">From</label>
-          <input
-            type="date" value={dateFrom}
-            onChange={e => setDateFrom(e.target.value)}
-            className="rounded-xl border border-gray-200 px-3 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-          />
+          <label className="text-xs font-medium uppercase tracking-wide w-6" style={{ color: '#7A9184' }}>From</label>
+          <input type="date" value={dateFrom} onChange={e => setDateFrom(e.target.value)}
+            className={inputCls} style={inputStyle} />
         </div>
 
-        <ChevronRight size={14} className="text-gray-300 shrink-0" />
+        <ChevronRight size={14} style={{ color: '#B7C4BC' }} className="shrink-0" />
 
         <div className="flex items-center gap-3">
-          <label className="text-xs font-medium text-gray-500 uppercase tracking-wide w-4">To</label>
-          <input
-            type="date" value={dateTo}
-            onChange={e => setDateTo(e.target.value)}
-            className="rounded-xl border border-gray-200 px-3 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-          />
+          <label className="text-xs font-medium uppercase tracking-wide w-4" style={{ color: '#7A9184' }}>To</label>
+          <input type="date" value={dateTo} onChange={e => setDateTo(e.target.value)}
+            className={inputCls} style={inputStyle} />
         </div>
 
         <div className="flex items-center gap-2 ml-auto">
-          <span className="text-xs text-gray-400 mr-1">Quick select:</span>
+          <span className="text-xs mr-1" style={{ color: '#B7C4BC' }}>Quick select:</span>
           {[7, 30, 90].map(n => (
-            <button
-              key={n}
+            <button key={n}
               onClick={() => { setDateFrom(daysAgo(n - 1)); setDateTo(today()) }}
-              className="px-3 py-1.5 rounded-lg text-xs font-medium bg-gray-100 text-gray-600 hover:bg-indigo-50 hover:text-indigo-700 transition-colors"
+              className="px-3 py-1.5 rounded-lg text-xs font-medium transition-colors"
+              style={{ background: '#FAFBF9', color: '#7A9184', border: '1px solid #E2E9E5' }}
+              onMouseEnter={e => { e.currentTarget.style.background = 'rgba(14,59,46,0.08)'; e.currentTarget.style.color = '#0E3B2E' }}
+              onMouseLeave={e => { e.currentTarget.style.background = '#FAFBF9'; e.currentTarget.style.color = '#7A9184' }}
             >
               {n}d
             </button>
@@ -97,31 +97,28 @@ function ReportRow({ report, loading, onDownload }) {
   const isLoading = loading === report.key
 
   return (
-    <div className="flex items-center gap-5 px-6 py-5 hover:bg-gray-50 transition-colors group">
-      {/* Icon */}
-      <div className={`w-11 h-11 rounded-xl ${meta.color} flex items-center justify-center shrink-0`}>
+    <div className="flex items-center gap-5 px-6 py-5 group transition-colors"
+      style={{ ':hover': { background: '#FAFBF9' } }}
+      onMouseEnter={e => e.currentTarget.style.background = '#FAFBF9'}
+      onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
+      <div className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0"
+        style={{ background: 'rgba(14,59,46,0.07)', color: '#0E3B2E' }}>
         <Icon size={19} />
       </div>
 
-      {/* Text */}
       <div className="flex-1 min-w-0">
-        <p className="text-sm font-semibold text-gray-800 leading-snug">{report.label}</p>
-        <p className="text-xs text-gray-400 mt-0.5 leading-relaxed">{report.description}</p>
+        <p className="text-sm font-semibold leading-snug" style={{ color: '#0A2820' }}>{report.label}</p>
+        <p className="text-xs mt-0.5 leading-relaxed" style={{ color: '#B7C4BC' }}>{report.description}</p>
       </div>
 
-      {/* Format badge */}
-      <span className="text-xs font-medium text-gray-400 bg-gray-100 px-2 py-0.5 rounded-md shrink-0">
+      <span className="text-xs font-medium px-2 py-0.5 rounded-md shrink-0"
+        style={{ background: '#FAFBF9', color: '#7A9184', border: '1px solid #E2E9E5' }}>
         CSV
       </span>
 
-      {/* Download button */}
-      <Button
-        size="sm"
-        variant={isLoading ? 'secondary' : 'primary'}
-        onClick={() => onDownload(report.key)}
-        disabled={isLoading}
-        className="shrink-0 min-w-[110px] justify-center"
-      >
+      <Button size="sm" variant={isLoading ? 'secondary' : 'primary'}
+        onClick={() => onDownload(report.key)} disabled={isLoading}
+        className="shrink-0 min-w-[110px] justify-center">
         <Download size={13} className={isLoading ? 'animate-bounce' : ''} />
         {isLoading ? 'Preparing…' : 'Download'}
       </Button>
@@ -145,58 +142,48 @@ export default function ReportsPage() {
     setLoading(null)
   }
 
-  // Split full export from the rest
   const mainReports = reports.filter(r => r.key !== 'full')
   const fullReport  = reports.find(r => r.key === 'full')
 
   return (
     <div className="space-y-8 max-w-3xl">
-
-      {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Reports</h1>
-        <p className="text-sm text-gray-500 mt-1">
+        <h1 className="text-2xl font-bold" style={{ fontFamily: "'Fraunces', serif", color: '#0A2820' }}>Reports</h1>
+        <p className="text-sm mt-1" style={{ color: '#7A9184' }}>
           Export business data as CSV files. Open in Excel or Google Sheets.
         </p>
       </div>
 
-      {/* Date range */}
-      <DateRangeBar
-        dateFrom={dateFrom} dateTo={dateTo}
-        setDateFrom={setDateFrom} setDateTo={setDateTo}
-      />
+      <DateRangeBar dateFrom={dateFrom} dateTo={dateTo} setDateFrom={setDateFrom} setDateTo={setDateTo} />
 
-      {/* Individual reports */}
       <Card>
-        <div className="px-6 py-4 border-b border-gray-100">
-          <p className="text-sm font-semibold text-gray-800">Individual Reports</p>
-          <p className="text-xs text-gray-400 mt-0.5">Download each module separately</p>
+        <div className="px-6 py-4" style={{ borderBottom: '1px solid #E2E9E5' }}>
+          <p className="text-sm font-semibold" style={{ color: '#0A2820' }}>Individual Reports</p>
+          <p className="text-xs mt-0.5" style={{ color: '#B7C4BC' }}>Download each module separately</p>
         </div>
-
-        <div className="divide-y divide-gray-100">
-          {mainReports.map(r => (
-            <ReportRow key={r.key} report={r} loading={loading} onDownload={handleDownload} />
+        <div style={{ borderTop: 'none' }}>
+          {mainReports.map((r, i) => (
+            <div key={r.key} style={i > 0 ? { borderTop: '1px solid #E2E9E5' } : {}}>
+              <ReportRow report={r} loading={loading} onDownload={handleDownload} />
+            </div>
           ))}
         </div>
       </Card>
 
-      {/* Full export */}
       {fullReport && (
-        <Card className={`border-2 ${REPORT_META.full.border}`}>
+        <Card style={{ border: '1px solid #E2E9E5' }}>
           <div className="px-6 py-5 flex items-center gap-5">
-            <div className="w-11 h-11 rounded-xl bg-gray-100 text-gray-600 flex items-center justify-center shrink-0">
+            <div className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0"
+              style={{ background: 'rgba(14,59,46,0.07)', color: '#0E3B2E' }}>
               <FileText size={19} />
             </div>
             <div className="flex-1">
-              <p className="text-sm font-semibold text-gray-800">{fullReport.label}</p>
-              <p className="text-xs text-gray-400 mt-0.5">{fullReport.description}</p>
+              <p className="text-sm font-semibold" style={{ color: '#0A2820' }}>{fullReport.label}</p>
+              <p className="text-xs mt-0.5" style={{ color: '#B7C4BC' }}>{fullReport.description}</p>
             </div>
-            <Button
-              size="md"
-              onClick={() => handleDownload(fullReport.key)}
+            <Button size="md" onClick={() => handleDownload(fullReport.key)}
               disabled={loading === fullReport.key}
-              className="shrink-0 min-w-[130px] justify-center"
-            >
+              className="shrink-0 min-w-[130px] justify-center">
               <Download size={14} className={loading === fullReport.key ? 'animate-bounce' : ''} />
               {loading === fullReport.key ? 'Preparing…' : 'Full Export'}
             </Button>
@@ -204,7 +191,7 @@ export default function ReportsPage() {
         </Card>
       )}
 
-      <p className="text-xs text-gray-400 pb-4">
+      <p className="text-xs pb-4" style={{ color: '#B7C4BC' }}>
         All reports include records within the selected date range only.
       </p>
     </div>

@@ -36,23 +36,23 @@ function ExecutiveSummary({ score, topRec }) {
   const profitable = parseFloat(score?.total_sales ?? 0) - parseFloat(score?.total_expenses ?? 0) >= 0
   const feature = topRec ? (FEATURE_LABELS[topRec.feature] ?? topRec.feature.replace(/_/g, ' ')) : null
 
-  let text, style
+  let text, borderColor, bg, color
   if (profitable && topRec?.urgency === 'high') {
-    text  = `Your business is profitable but losing money to ${feature.toLowerCase()} - fixing this is your #1 lever this month.`
-    style = 'bg-[#F6EDDA] border-[#E9D4A6] text-[#8A6A2E]'
+    text = `Your business is profitable but losing money to ${feature.toLowerCase()} — fixing this is your #1 lever this month.`
+    bg = '#F1E6D0'; borderColor = '#C9A15C'; color = '#8A6A2E'
   } else if (profitable) {
-    text  = `Your business is profitable and healthy - keep monitoring ${feature ?? 'your key metrics'} to stay on track.`
-    style = 'bg-[#E3EDE7] border-[#C7DBCE] text-[#0E3B2E]'
+    text = `Your business is profitable and healthy — keep monitoring ${feature ?? 'your key metrics'} to stay on track.`
+    bg = 'rgba(14,59,46,0.06)'; borderColor = 'rgba(14,59,46,0.2)'; color = '#0E3B2E'
   } else if (topRec?.urgency === 'high') {
-    text  = `Your business is currently operating at a loss, largely driven by ${feature.toLowerCase()} - this needs immediate attention.`
-    style = 'bg-[#F7E7E4] border-[#E3C0BA] text-[#9C4B3E]'
+    text = `Your business is currently operating at a loss, largely driven by ${feature.toLowerCase()} — this needs immediate attention.`
+    bg = '#F1E6D0'; borderColor = '#C9A15C'; color = '#8A6A2E'
   } else {
-    text  = `Your business is currently operating at a loss - review your Reports page for a full breakdown.`
-    style = 'bg-[#FAFBF9] border-[#EAEFEC] text-[#7A9184]'
+    text = `Your business is currently operating at a loss — review your Reports page for a full breakdown.`
+    bg = '#FAFBF9'; borderColor = '#E2E9E5'; color = '#7A9184'
   }
 
   return (
-    <p className={`text-sm px-4 py-3 rounded-xl border ${style}`}>
+    <p className="text-sm px-4 py-3 rounded-xl" style={{ background: bg, borderLeft: `3px solid ${borderColor}`, color }}>
       {text}
     </p>
   )
@@ -151,7 +151,7 @@ export default function DashboardPage() {
       {latestLoading ? (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {[...Array(3)].map((_, i) => (
-            <Card key={i} className="h-48 animate-pulse bg-gray-100" />
+            <Card key={i} className="h-48 animate-pulse" style={{ background: '#E2E9E5' }} />
           ))}
         </div>
       ) : !latest ? (
@@ -189,8 +189,8 @@ export default function DashboardPage() {
 
             <div className="lg:col-span-2 flex flex-col gap-6">
               <ProfitLossCard score={latest} />
-              <Card className="flex-1">
-                <h2 className="text-sm font-semibold text-[#16221D] mb-4">30-Day Score Trend</h2>
+              <Card className="flex-1 p-5">
+                <h2 className="text-sm font-semibold text-[#0A2820] mb-4">30-Day Score Trend</h2>
                 <ScoreTrendChart data={history} />
               </Card>
             </div>

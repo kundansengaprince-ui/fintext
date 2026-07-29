@@ -7,7 +7,7 @@ import Modal from '../components/ui/Modal'
 import Input from '../components/ui/Input'
 import Select from '../components/ui/Select'
 import toast from 'react-hot-toast'
-import { Plus, Pencil, Trash2, Users, TrendingUp, Receipt, Package, UserCheck } from 'lucide-react'
+import { Plus, Pencil, Trash2, Users } from 'lucide-react'
 import { validatePassword, passwordStrength } from '../utils/password'
 
 const ROLES = [
@@ -17,24 +17,6 @@ const ROLES = [
   { value: 'IT_ADMIN',        label: 'IT Admin' },
   { value: 'FLOOR_STAFF',     label: 'Waiter / Floor Staff' },
 ]
-
-const roleColors = {
-  MANAGER:         'bg-purple-100 text-purple-700',
-  CASHIER:         'bg-blue-100 text-blue-700',
-  FINANCE_OFFICER: 'bg-green-100 text-green-700',
-  IT_ADMIN:        'bg-gray-100 text-gray-700',
-  FLOOR_STAFF:     'bg-yellow-100 text-yellow-700',
-}
-
-const roleIcons = {
-  MANAGER:         '👑',
-  CASHIER:         '🧾',
-  FINANCE_OFFICER: '💼',
-  IT_ADMIN:        '⚙️',
-  FLOOR_STAFF:     '🍽️',
-}
-
-const activityItems = (m) => []
 
 const emptyForm = {
   username: '', first_name: '', last_name: '', email: '',
@@ -55,11 +37,7 @@ function MemberForm({ existing, onDone }) {
 
   const mutation = useMutation({
     mutationFn: existing ? (d) => updateTeamMember(existing.id, d) : createTeamMember,
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ['team'] })
-      toast.success(existing ? 'Member updated.' : 'Member added.')
-      onDone?.()
-    },
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ['team'] }); toast.success(existing ? 'Member updated.' : 'Member added.'); onDone?.() },
     onError: (err) => {
       const msg = err.response?.data?.username?.[0] ?? err.response?.data?.password?.[0] ?? 'Could not save member.'
       toast.error(msg)
@@ -73,21 +51,25 @@ function MemberForm({ existing, onDone }) {
       delete payload.password
     } else if (payload.password) {
       const errors = validatePassword(payload.password)
-      if (errors.length > 0) {
-        toast.error(`Password must contain: ${errors.join(', ')}.`)
-        return
-      }
+      if (errors.length > 0) { toast.error(`Password must contain: ${errors.join(', ')}.`); return }
     }
     mutation.mutate(payload)
   }
 
   const strength = passwordStrength(form.password)
+  const strengthColor = strength?.level === 'strong' ? '#0E3B2E' : strength?.level === 'medium' ? '#8A6A2E' : '#9C4B3E'
+  const strengthBar = (i) => {
+    if (!strength) return '#E2E9E5'
+    if (strength.level === 'strong') return '#0E3B2E'
+    if (strength.level === 'medium' && i <= 1) return '#C9A15C'
+    if (strength.level === 'weak' && i === 0) return '#9C4B3E'
+    return '#E2E9E5'
+  }
 
   return (
     <form onSubmit={submit} className="space-y-4">
       {!existing && (
-        <Input label="Username" value={form.username} onChange={set('username')}
-          placeholder="e.g. john_doe" required />
+        <Input label="Username" value={form.username} onChange={set('username')} placeholder="e.g. john_doe" required />
       )}
       <div className="grid grid-cols-2 gap-4">
         <Input label="First Name" value={form.first_name} onChange={set('first_name')} placeholder="Jean" />
@@ -101,11 +83,11 @@ function MemberForm({ existing, onDone }) {
         <Input label="Phone" value={form.phone} onChange={set('phone')} placeholder="+250 7XX XXX XXX" />
       </div>
       {form.role && (
-        <p className="text-xs text-gray-500 bg-gray-50 rounded-lg px-3 py-2">
-          <strong>Access: </strong>
-          {ROLES.find(r => r.value === form.role) && {
+        <p className="text-xs px-3 py-2 rounded-lg" style={{ background: '#FAFBF9', color: '#7A9184', border: '1px solid #E2E9E5' }}>
+          <strong style={{ color: '#3D4F47' }}>Access: </strong>
+          {{
             MANAGER:         'Full access to all modules, can compute health scores',
-            CASHIER:         'Sales module only - records daily transactions',
+            CASHIER:         'Sales module only — records daily transactions',
             FINANCE_OFFICER: 'Expenses (full) + Sales, Inventory, Customers (view only)',
             IT_ADMIN:        'Team management + dashboard and data (view only)',
             FLOOR_STAFF:     'Customer retention records only',
@@ -123,24 +105,17 @@ function MemberForm({ existing, onDone }) {
       {form.password && strength && (
         <div className="space-y-1 -mt-2">
           <div className="flex gap-1">
-            {['weak','medium','strong'].map((l, i) => (
-              <div key={l} className={`h-1 flex-1 rounded-full transition-colors ${
-                strength.level === 'weak'   && i === 0 ? 'bg-red-500' :
-                strength.level === 'medium' && i <= 1  ? 'bg-yellow-400' :
-                strength.level === 'strong'             ? 'bg-emerald-500' : 'bg-gray-200'
-              }`} />
+            {[0, 1, 2].map(i => (
+              <div key={i} className="h-1 flex-1 rounded-full transition-colors" style={{ background: strengthBar(i) }} />
             ))}
           </div>
-          <p className={`text-xs ${
-            strength.level === 'strong' ? 'text-emerald-600' :
-            strength.level === 'medium' ? 'text-yellow-600' : 'text-red-600'
-          }`}>{strength.label} password</p>
+          <p className="text-xs" style={{ color: strengthColor }}>{strength.label} password</p>
         </div>
       )}
       {existing && (
-        <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
+        <label className="flex items-center gap-2 text-sm cursor-pointer" style={{ color: '#3D4F47' }}>
           <input type="checkbox" checked={form.is_active} onChange={set('is_active')}
-            className="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500" />
+            className="rounded" style={{ accentColor: '#0E3B2E' }} />
           Account active
         </label>
       )}
@@ -156,10 +131,10 @@ function MemberForm({ existing, onDone }) {
 
 export default function TeamPage() {
   const qc = useQueryClient()
-  const [showForm, setShowForm]       = useState(false)
-  const [editing, setEditing]         = useState(null)
+  const [showForm, setShowForm]           = useState(false)
+  const [editing, setEditing]             = useState(null)
   const [confirmDelete, setConfirmDelete] = useState(null)
-  const [expanded, setExpanded]       = useState(null)
+  const [expanded, setExpanded]           = useState(null)
 
   const { data, isLoading } = useQuery({
     queryKey: ['team'],
@@ -169,153 +144,127 @@ export default function TeamPage() {
 
   const del = useMutation({
     mutationFn: (id) => deleteTeamMember(id),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ['team'] })
-      toast.success('Member removed.')
-      setConfirmDelete(null)
-    },
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ['team'] }); toast.success('Member removed.'); setConfirmDelete(null) },
     onError: (err) => toast.error(err.response?.data?.detail ?? 'Could not remove member.'),
   })
 
-  const openAdd  = () => { setEditing(null); setShowForm(true) }
-  const openEdit = (m) => { setEditing(m); setShowForm(true) }
+  const openAdd   = () => { setEditing(null); setShowForm(true) }
+  const openEdit  = (m) => { setEditing(m); setShowForm(true) }
   const closeForm = () => { setShowForm(false); setEditing(null) }
-
-  const totalRecords = 0
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Team</h1>
-          <p className="text-sm text-gray-500 mt-0.5">Staff accounts, roles, access levels and activity</p>
+          <h1 className="text-2xl font-bold" style={{ fontFamily: "'Fraunces', serif", color: '#0A2820' }}>Team</h1>
+          <p className="text-sm mt-0.5" style={{ color: '#7A9184' }}>Staff accounts, roles, access levels and activity</p>
         </div>
         <Button onClick={openAdd}><Plus size={15} /> Add Member</Button>
       </div>
 
-      {/* Summary cards */}
       {members.length > 0 && (
         <div className="grid grid-cols-4 gap-4">
-          <Card className="p-4">
-            <p className="text-xs text-gray-500 uppercase tracking-wide">Total Staff</p>
-            <p className="text-2xl font-bold text-gray-900 mt-1">{members.length}</p>
-          </Card>
-          <Card className="p-4">
-            <p className="text-xs text-gray-500 uppercase tracking-wide">Active</p>
-            <p className="text-2xl font-bold text-green-600 mt-1">{members.filter(m => m.is_active).length}</p>
-          </Card>
-          <Card className="p-4">
-            <p className="text-xs text-gray-500 uppercase tracking-wide">Roles in Use</p>
-            <p className="text-2xl font-bold text-gray-900 mt-1">{new Set(members.map(m => m.role)).size}</p>
-          </Card>
-          <Card className="p-4">
-            <p className="text-xs text-gray-500 uppercase tracking-wide">Total Records Entered</p>
-            <p className="text-2xl font-bold text-indigo-600 mt-1">{totalRecords}</p>
-          </Card>
+          {[
+            ['Total Staff', members.length, '#0A2820'],
+            ['Active', members.filter(m => m.is_active).length, '#0E3B2E'],
+            ['Roles in Use', new Set(members.map(m => m.role)).size, '#0A2820'],
+            ['Total Records Entered', 0, '#0A2820'],
+          ].map(([label, value, color]) => (
+            <Card key={label} className="p-4">
+              <p className="text-xs uppercase tracking-wide" style={{ color: '#7A9184' }}>{label}</p>
+              <p className="text-2xl font-bold mt-1" style={{ fontFamily: "'IBM Plex Mono', monospace", color }}>{value}</p>
+            </Card>
+          ))}
         </div>
       )}
 
-      {/* Member table */}
       <Card>
         {isLoading ? (
-          <div className="p-8 text-center text-gray-400">Loading…</div>
+          <div className="p-8 text-center text-sm" style={{ color: '#B7C4BC' }}>Loading…</div>
         ) : members.length === 0 ? (
           <div className="p-12 text-center">
-            <Users size={40} className="mx-auto text-gray-300 mb-3" />
-            <p className="text-gray-500 font-medium">No team members yet.</p>
+            <Users size={40} className="mx-auto mb-3" style={{ color: '#E2E9E5' }} />
+            <p className="font-medium" style={{ color: '#7A9184' }}>No team members yet.</p>
           </div>
         ) : (
-          <div className="divide-y divide-gray-50">
-            {members.map(m => {
+          <div style={{ borderTop: 'none' }}>
+            {members.map((m, idx) => {
               const isOpen = expanded === m.id
-              const activity = activityItems(m)
               return (
-                <div key={m.id}>
-                  <div
-                    className="flex items-center gap-4 px-4 py-3 hover:bg-gray-50 cursor-pointer"
-                    onClick={() => setExpanded(isOpen ? null : m.id)}
-                  >
+                <div key={m.id} style={idx > 0 ? { borderTop: '1px solid #E2E9E5' } : {}}>
+                  <div className="flex items-center gap-4 px-4 py-3 cursor-pointer"
+                    style={{ transition: 'background 0.1s' }}
+                    onMouseEnter={e => e.currentTarget.style.background = '#FAFBF9'}
+                    onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                    onClick={() => setExpanded(isOpen ? null : m.id)}>
+
                     {/* Avatar */}
-                    <div className="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 font-bold shrink-0 text-sm">
+                    <div className="w-10 h-10 rounded-full flex items-center justify-center font-bold shrink-0 text-sm"
+                      style={{ background: '#164C3B', color: '#B7C4BC' }}>
                       {(m.first_name?.[0] ?? m.username[0]).toUpperCase()}
                     </div>
 
                     {/* Name + username */}
                     <div className="flex-1 min-w-0">
-                      <p className="font-semibold text-gray-800 text-sm">
-                        {m.first_name || m.last_name
-                          ? `${m.first_name} ${m.last_name}`.trim()
-                          : m.username}
+                      <p className="font-semibold text-sm" style={{ color: '#0A2820' }}>
+                        {m.first_name || m.last_name ? `${m.first_name} ${m.last_name}`.trim() : m.username}
                       </p>
-                      <p className="text-xs text-gray-400 font-mono">@{m.username}</p>
+                      <p className="text-xs" style={{ fontFamily: "'IBM Plex Mono', monospace", color: '#B7C4BC' }}>@{m.username}</p>
                     </div>
 
                     {/* Role */}
                     <div className="w-40 shrink-0">
-                      <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium ${roleColors[m.role] ?? 'bg-gray-100 text-gray-600'}`}>
-                        <span>{roleIcons[m.role]}</span>
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+                        style={{ background: 'rgba(14,59,46,0.08)', color: '#0E3B2E', border: '1px solid rgba(14,59,46,0.15)' }}>
                         {ROLES.find(r => r.value === m.role)?.label ?? m.role}
                       </span>
                     </div>
 
                     {/* Contact */}
-                    <div className="w-44 shrink-0 text-xs text-gray-500">
+                    <div className="w-44 shrink-0 text-xs" style={{ color: '#7A9184' }}>
                       <p className="truncate">{m.email || '—'}</p>
                       <p>{m.phone || '—'}</p>
                     </div>
 
-                    {/* Activity summary */}
+                    {/* Activity */}
                     <div className="w-32 shrink-0 text-center">
-                      <p className="text-lg font-bold text-gray-800">{m.total_records ?? 0}</p>
-                      <p className="text-xs text-gray-400">records entered</p>
+                      <p className="text-lg font-bold" style={{ fontFamily: "'IBM Plex Mono', monospace", color: '#0A2820' }}>
+                        {m.total_records ?? 0}
+                      </p>
+                      <p className="text-xs" style={{ color: '#B7C4BC' }}>records entered</p>
                     </div>
 
                     {/* Status */}
                     <div className="w-20 shrink-0 text-center">
-                      <span className={`inline-flex items-center gap-1 text-xs font-medium ${m.is_active ? 'text-green-600' : 'text-gray-400'}`}>
-                        <span className={`w-1.5 h-1.5 rounded-full ${m.is_active ? 'bg-green-500' : 'bg-gray-300'}`} />
+                      <span className="inline-flex items-center gap-1 text-xs font-medium"
+                        style={{ color: m.is_active ? '#0E3B2E' : '#B7C4BC' }}>
+                        <span className="w-1.5 h-1.5 rounded-full"
+                          style={{ background: m.is_active ? '#0E3B2E' : '#B7C4BC' }} />
                         {m.is_active ? 'Active' : 'Inactive'}
                       </span>
                     </div>
 
                     {/* Actions */}
                     <div className="flex items-center gap-1" onClick={e => e.stopPropagation()}>
-                      <button onClick={() => openEdit(m)}
-                        className="p-1.5 rounded-lg text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 transition-colors">
+                      <button onClick={() => openEdit(m)} className="p-1.5 rounded-lg transition-colors"
+                        style={{ color: '#B7C4BC' }}
+                        onMouseEnter={e => { e.currentTarget.style.color = '#0E3B2E'; e.currentTarget.style.background = 'rgba(14,59,46,0.07)' }}
+                        onMouseLeave={e => { e.currentTarget.style.color = '#B7C4BC'; e.currentTarget.style.background = 'transparent' }}>
                         <Pencil size={14} />
                       </button>
-                      <button onClick={() => setConfirmDelete(m)}
-                        className="p-1.5 rounded-lg text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors">
+                      <button onClick={() => setConfirmDelete(m)} className="p-1.5 rounded-lg transition-colors"
+                        style={{ color: '#B7C4BC' }}
+                        onMouseEnter={e => { e.currentTarget.style.color = '#9C4B3E'; e.currentTarget.style.background = 'rgba(156,75,62,0.07)' }}
+                        onMouseLeave={e => { e.currentTarget.style.color = '#B7C4BC'; e.currentTarget.style.background = 'transparent' }}>
                         <Trash2 size={14} />
                       </button>
                     </div>
                   </div>
 
-                  {/* Expanded detail row */}
                   {isOpen && (
-                    <div className="bg-gray-50 border-t border-gray-100 px-6 py-4">
-                      <div className="grid grid-cols-2 gap-6">
-                        <div>
-                          <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Responsibilities</p>
-                          <p className="text-sm text-gray-700">{m.responsibilities}</p>
-                        </div>
-                        <div>
-                          <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Data Contributions</p>
-                          {activity.length === 0 ? (
-                            <p className="text-sm text-gray-400">No records entered yet.</p>
-                          ) : (
-                            <div className="space-y-1">
-                              {activity.map(({ icon: Icon, label, count, color }) => (
-                                <div key={label} className="flex items-center gap-2 text-sm">
-                                  <Icon size={14} className={color} />
-                                  <span className="text-gray-600">{label}:</span>
-                                  <span className="font-semibold text-gray-800">{count}</span>
-                                </div>
-                              ))}
-                            </div>
-                          )}
-                        </div>
-                      </div>
+                    <div className="px-6 py-4" style={{ background: '#FAFBF9', borderTop: '1px solid #E2E9E5' }}>
+                      <p className="text-xs font-semibold uppercase tracking-wide mb-2" style={{ color: '#7A9184' }}>Responsibilities</p>
+                      <p className="text-sm" style={{ color: '#3D4F47' }}>{m.responsibilities || '—'}</p>
                     </div>
                   )}
                 </div>
@@ -325,14 +274,13 @@ export default function TeamPage() {
         )}
       </Card>
 
-      <Modal isOpen={showForm} onClose={closeForm}
-        title={editing ? 'Edit Team Member' : 'Add Team Member'} size="md">
+      <Modal isOpen={showForm} onClose={closeForm} title={editing ? 'Edit Team Member' : 'Add Team Member'} size="md">
         <MemberForm existing={editing} onDone={closeForm} />
       </Modal>
 
       <Modal isOpen={!!confirmDelete} onClose={() => setConfirmDelete(null)} title="Remove Member">
-        <p className="text-gray-600 mb-6">
-          Remove <strong>{confirmDelete?.first_name || confirmDelete?.username}</strong> from the team?
+        <p className="mb-6" style={{ color: '#7A9184' }}>
+          Remove <strong style={{ color: '#0A2820' }}>{confirmDelete?.first_name || confirmDelete?.username}</strong> from the team?
           Their account will be permanently deleted.
         </p>
         <div className="flex justify-end gap-3">

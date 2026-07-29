@@ -11,6 +11,16 @@ import { useAuth } from '../context/AuthContext'
 
 const PAGE_SIZE = 15
 
+const inputCls = 'text-sm px-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0E3B2E] focus:border-transparent'
+const inputStyle = { border: '1px solid #E2E9E5', color: '#0A2820', background: '#fff' }
+
+const retentionStyle = (rate) => {
+  const r = parseFloat(rate)
+  if (r >= 60) return { background: 'rgba(14,59,46,0.08)', color: '#0E3B2E' }
+  if (r >= 40) return { background: 'rgba(201,161,92,0.12)', color: '#8A6A2E' }
+  return { background: 'rgba(156,75,62,0.08)', color: '#9C4B3E' }
+}
+
 export default function CustomersPage() {
   const { can } = useAuth()
   const qc = useQueryClient()
@@ -40,12 +50,7 @@ export default function CustomersPage() {
     : null
   const totalCustomers = allRecords.reduce((s, r) => s + parseInt(r.total_customers || 0), 0)
 
-  const retentionColor = (rate) => {
-    const r = parseFloat(rate)
-    if (r >= 60) return 'text-green-600 bg-green-50'
-    if (r >= 40) return 'text-yellow-600 bg-yellow-50'
-    return 'text-red-600 bg-red-50'
-  }
+  const avgColor = avgRetention >= 60 ? '#0E3B2E' : avgRetention >= 40 ? '#8A6A2E' : '#9C4B3E'
 
   const del = useMutation({
     mutationFn: (id) => deleteCustomer(id),
@@ -61,8 +66,8 @@ export default function CustomersPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Customer Retention</h1>
-          <p className="text-sm text-gray-500 mt-0.5">New vs. returning customer tracking</p>
+          <h1 className="text-2xl font-bold" style={{ fontFamily: "'Fraunces', serif", color: '#0A2820' }}>Customer Retention</h1>
+          <p className="text-sm mt-0.5" style={{ color: '#7A9184' }}>New vs. returning customer tracking</p>
         </div>
         {can.editCustomers && <Button onClick={openAdd}><Plus size={15} /> Add Record</Button>}
       </div>
@@ -70,80 +75,94 @@ export default function CustomersPage() {
       {allRecords.length > 0 && (
         <div className="grid grid-cols-3 gap-4">
           <Card className="p-4">
-            <p className="text-xs text-gray-500 uppercase tracking-wide">Total Customers Served</p>
-            <p className="text-2xl font-bold text-gray-900 mt-1">{totalCustomers.toLocaleString()}</p>
+            <p className="text-xs uppercase tracking-wide" style={{ color: '#7A9184' }}>Total Customers Served</p>
+            <p className="text-2xl font-bold mt-1" style={{ fontFamily: "'IBM Plex Mono', monospace", color: '#0A2820' }}>
+              {totalCustomers.toLocaleString()}
+            </p>
           </Card>
           <Card className="p-4">
-            <p className="text-xs text-gray-500 uppercase tracking-wide">Avg Retention Rate</p>
-            <p className={`text-2xl font-bold mt-1 ${avgRetention >= 60 ? 'text-green-600' : avgRetention >= 40 ? 'text-yellow-600' : 'text-red-600'}`}>
+            <p className="text-xs uppercase tracking-wide" style={{ color: '#7A9184' }}>Avg Retention Rate</p>
+            <p className="text-2xl font-bold mt-1" style={{ fontFamily: "'IBM Plex Mono', monospace", color: avgColor }}>
               {avgRetention}%
             </p>
           </Card>
           <Card className="p-4">
-            <p className="text-xs text-gray-500 uppercase tracking-wide">Days Recorded</p>
-            <p className="text-2xl font-bold text-gray-900 mt-1">{allRecords.length}</p>
+            <p className="text-xs uppercase tracking-wide" style={{ color: '#7A9184' }}>Days Recorded</p>
+            <p className="text-2xl font-bold mt-1" style={{ fontFamily: "'IBM Plex Mono', monospace", color: '#0A2820' }}>
+              {allRecords.length}
+            </p>
           </Card>
         </div>
       )}
 
-      {/* Filters */}
       <Card className="px-4 py-3">
         <div className="flex items-center gap-3 flex-wrap">
           <div className="flex items-center gap-2">
             <input type="date" value={dateFrom} onChange={e => { setDateFrom(e.target.value); setPage(1) }}
-              className="text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" />
-            <span className="text-gray-400 text-sm">to</span>
+              className={inputCls} style={inputStyle} />
+            <span className="text-sm" style={{ color: '#B7C4BC' }}>to</span>
             <input type="date" value={dateTo} onChange={e => { setDateTo(e.target.value); setPage(1) }}
-              className="text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+              className={inputCls} style={inputStyle} />
           </div>
           {(dateFrom || dateTo) && (
             <button onClick={() => { setDateFrom(''); setDateTo(''); setPage(1) }}
-              className="text-xs text-indigo-600 hover:underline">Clear</button>
+              className="text-xs font-medium" style={{ color: '#0E3B2E' }}>Clear</button>
           )}
         </div>
       </Card>
 
       <Card>
         {isLoading ? (
-          <div className="p-8 text-center text-gray-400">Loading...</div>
+          <div className="p-8 text-center text-sm" style={{ color: '#B7C4BC' }}>Loading...</div>
         ) : records.length === 0 ? (
           <div className="p-12 text-center">
-            <Users size={40} className="mx-auto text-gray-300 mb-3" />
-            <p className="text-gray-500 font-medium">No customer records found.</p>
+            <Users size={40} className="mx-auto mb-3" style={{ color: '#E2E9E5' }} />
+            <p className="font-medium" style={{ color: '#7A9184' }}>No customer records found.</p>
           </div>
         ) : (
           <>
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-gray-100">
-                    <th className="text-left px-4 py-3 font-medium text-gray-500">Date</th>
-                    <th className="text-right px-4 py-3 font-medium text-gray-500">New</th>
-                    <th className="text-right px-4 py-3 font-medium text-gray-500">Returning</th>
-                    <th className="text-right px-4 py-3 font-medium text-gray-500">Total</th>
-                    <th className="text-right px-4 py-3 font-medium text-gray-500">Retention Rate</th>
-                    <th className="text-left px-4 py-3 font-medium text-gray-500">Notes</th>
+                  <tr style={{ borderBottom: '1px solid #E2E9E5' }}>
+                    {['Date','New','Returning','Total','Retention Rate','Notes'].map((h, i) => (
+                      <th key={h} className={`px-4 py-3 font-medium ${i >= 1 && i <= 4 ? 'text-right' : 'text-left'}`}
+                        style={{ color: '#7A9184' }}>{h}</th>
+                    ))}
                     {can.editCustomers && <th className="px-4 py-3" />}
                   </tr>
                 </thead>
                 <tbody>
                   {records.map(r => (
-                    <tr key={r.id} className="border-b border-gray-50 hover:bg-gray-50">
-                      <td className="px-4 py-3 font-medium text-gray-800">{r.date}</td>
-                      <td className="px-4 py-3 text-right text-gray-600">{r.new_customers}</td>
-                      <td className="px-4 py-3 text-right text-gray-600">{r.returning_customers}</td>
-                      <td className="px-4 py-3 text-right font-semibold text-gray-900">{r.total_customers}</td>
+                    <tr key={r.id} style={{ borderBottom: '1px solid #FAFBF9' }}
+                      onMouseEnter={e => e.currentTarget.style.background = '#FAFBF9'}
+                      onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
+                      <td className="px-4 py-3 font-medium" style={{ color: '#0A2820' }}>{r.date}</td>
+                      <td className="px-4 py-3 text-right" style={{ color: '#7A9184' }}>{r.new_customers}</td>
+                      <td className="px-4 py-3 text-right" style={{ color: '#7A9184' }}>{r.returning_customers}</td>
+                      <td className="px-4 py-3 text-right font-semibold" style={{ color: '#0A2820' }}>{r.total_customers}</td>
                       <td className="px-4 py-3 text-right">
-                        <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-semibold ${retentionColor(r.retention_rate)}`}>
+                        <span className="inline-block px-2 py-0.5 rounded-full text-xs font-semibold"
+                          style={retentionStyle(r.retention_rate)}>
                           {parseFloat(r.retention_rate).toFixed(1)}%
                         </span>
                       </td>
-                      <td className="px-4 py-3 text-gray-500 max-w-xs truncate">{r.notes || '—'}</td>
+                      <td className="px-4 py-3 max-w-xs truncate" style={{ color: '#B7C4BC' }}>{r.notes || '—'}</td>
                       {can.editCustomers && (
                         <td className="px-4 py-3">
                           <div className="flex items-center justify-end gap-2">
-                            <button onClick={() => openEdit(r)} className="p-1.5 rounded-lg text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 transition-colors"><Pencil size={14} /></button>
-                            <button onClick={() => setConfirmDelete(r)} className="p-1.5 rounded-lg text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors"><Trash2 size={14} /></button>
+                            <button onClick={() => openEdit(r)} className="p-1.5 rounded-lg transition-colors"
+                              style={{ color: '#B7C4BC' }}
+                              onMouseEnter={e => { e.currentTarget.style.color = '#0E3B2E'; e.currentTarget.style.background = 'rgba(14,59,46,0.07)' }}
+                              onMouseLeave={e => { e.currentTarget.style.color = '#B7C4BC'; e.currentTarget.style.background = 'transparent' }}>
+                              <Pencil size={14} />
+                            </button>
+                            <button onClick={() => setConfirmDelete(r)} className="p-1.5 rounded-lg transition-colors"
+                              style={{ color: '#B7C4BC' }}
+                              onMouseEnter={e => { e.currentTarget.style.color = '#9C4B3E'; e.currentTarget.style.background = 'rgba(156,75,62,0.07)' }}
+                              onMouseLeave={e => { e.currentTarget.style.color = '#B7C4BC'; e.currentTarget.style.background = 'transparent' }}>
+                              <Trash2 size={14} />
+                            </button>
                           </div>
                         </td>
                       )}
@@ -153,11 +172,17 @@ export default function CustomersPage() {
               </table>
             </div>
             {totalPages > 1 && (
-              <div className="flex items-center justify-between px-4 py-3 border-t border-gray-100">
-                <p className="text-xs text-gray-500">{allRecords.length} records · page {page} of {totalPages}</p>
+              <div className="flex items-center justify-between px-4 py-3" style={{ borderTop: '1px solid #E2E9E5' }}>
+                <p className="text-xs" style={{ color: '#B7C4BC' }}>{allRecords.length} records · page {page} of {totalPages}</p>
                 <div className="flex items-center gap-2">
-                  <button onClick={() => setPage(p => p - 1)} disabled={page === 1} className="p-1.5 rounded-lg text-gray-400 hover:text-gray-700 disabled:opacity-30"><ChevronLeft size={16} /></button>
-                  <button onClick={() => setPage(p => p + 1)} disabled={page === totalPages} className="p-1.5 rounded-lg text-gray-400 hover:text-gray-700 disabled:opacity-30"><ChevronRight size={16} /></button>
+                  <button onClick={() => setPage(p => p - 1)} disabled={page === 1}
+                    className="p-1.5 rounded-lg disabled:opacity-30" style={{ color: '#7A9184' }}>
+                    <ChevronLeft size={16} />
+                  </button>
+                  <button onClick={() => setPage(p => p + 1)} disabled={page === totalPages}
+                    className="p-1.5 rounded-lg disabled:opacity-30" style={{ color: '#7A9184' }}>
+                    <ChevronRight size={16} />
+                  </button>
                 </div>
               </div>
             )}
@@ -169,7 +194,9 @@ export default function CustomersPage() {
         <CustomerForm existing={editing} onDone={closeForm} />
       </Modal>
       <Modal isOpen={!!confirmDelete} onClose={() => setConfirmDelete(null)} title="Delete Record">
-        <p className="text-gray-600 mb-6">Delete the customer record for <strong>{confirmDelete?.date}</strong>?</p>
+        <p className="mb-6" style={{ color: '#7A9184' }}>
+          Delete the customer record for <strong style={{ color: '#0A2820' }}>{confirmDelete?.date}</strong>?
+        </p>
         <div className="flex justify-end gap-3">
           <Button variant="secondary" onClick={() => setConfirmDelete(null)}>Cancel</Button>
           <Button variant="danger" disabled={del.isPending} onClick={() => del.mutate(confirmDelete.id)}>

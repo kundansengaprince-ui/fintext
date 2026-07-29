@@ -10,52 +10,59 @@ export default function ProfitLossCard({ score }) {
   const margin   = sales > 0 ? ((net / sales) * 100).toFixed(1) : null
   const positive = net >= 0
 
+  const monoStyle = {
+    fontFamily: "'IBM Plex Mono', 'Courier New', monospace",
+    fontSize: 17, fontWeight: 500,
+  }
+
   return (
     <Card className="p-5">
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-sm font-semibold text-gray-700">Profit &amp; Loss</h2>
-        <span className="text-xs text-gray-400">For {score?.date}</span>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 18 }}>
+        <h2 style={{ fontSize: 13, fontWeight: 600, color: '#3D4F47', margin: 0 }}>Profit &amp; Loss</h2>
+        <span style={{ fontSize: 12, color: '#B7C4BC' }}>For {score?.date}</span>
       </div>
 
-      <div className="grid grid-cols-3 gap-4 mb-4">
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 16, marginBottom: 16 }}>
         <div>
-          <p className="text-xs text-gray-400 uppercase tracking-wide mb-1">Revenue</p>
-          <p className="text-lg font-bold text-gray-900">RWF {fmt(sales)}</p>
+          <p style={{ fontSize: 10.5, fontWeight: 600, color: '#B7C4BC', textTransform: 'uppercase', letterSpacing: '0.06em', margin: '0 0 5px' }}>Revenue</p>
+          <p style={{ ...monoStyle, color: '#0A2820', margin: 0 }}>RWF {fmt(sales)}</p>
         </div>
         <div>
-          <p className="text-xs text-gray-400 uppercase tracking-wide mb-1">Expenses</p>
-          <p className="text-lg font-bold text-gray-900">RWF {fmt(expenses)}</p>
+          <p style={{ fontSize: 10.5, fontWeight: 600, color: '#B7C4BC', textTransform: 'uppercase', letterSpacing: '0.06em', margin: '0 0 5px' }}>Expenses</p>
+          <p style={{ ...monoStyle, color: '#0A2820', margin: 0 }}>RWF {fmt(expenses)}</p>
         </div>
         <div>
-          <p className="text-xs text-gray-400 uppercase tracking-wide mb-1">Net</p>
-          <p className={`text-lg font-bold ${positive ? 'text-emerald-600' : 'text-red-500'}`}>
+          <p style={{ fontSize: 10.5, fontWeight: 600, color: '#B7C4BC', textTransform: 'uppercase', letterSpacing: '0.06em', margin: '0 0 5px' }}>Net</p>
+          <p style={{ ...monoStyle, color: positive ? '#0E3B2E' : '#9C4B3E', margin: 0 }}>
             {positive ? '+' : ''}RWF {fmt(net)}
           </p>
         </div>
       </div>
 
-      {/* Visual bar */}
-      <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+      {/* Progress bar */}
+      <div style={{ height: 3, background: '#E2E9E5', borderRadius: 2, overflow: 'hidden', marginBottom: 14 }}>
         {sales > 0 && (
-          <div
-            className={`h-full rounded-full transition-all ${positive ? 'bg-emerald-400' : 'bg-red-400'}`}
-            style={{ width: `${Math.min(100, Math.abs(net / sales) * 100)}%` }}
-          />
+          <div style={{
+            height: '100%', borderRadius: 2,
+            background: positive ? '#0E3B2E' : '#9C4B3E',
+            width: `${Math.min(100, Math.abs(net / sales) * 100)}%`,
+            transition: 'width 0.4s ease',
+          }} />
         )}
       </div>
 
-      <div className="flex items-center justify-between mt-3">
-        <div className={`flex items-center gap-1.5 text-sm font-semibold ${positive ? 'text-emerald-600' : 'text-red-500'}`}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, fontWeight: 600, color: positive ? '#0E3B2E' : '#9C4B3E' }}>
           {positive
-            ? <TrendingUp size={15} />
+            ? <TrendingUp size={14} strokeWidth={2} />
             : net === 0
-            ? <Minus size={15} />
-            : <TrendingDown size={15} />
+            ? <Minus size={14} strokeWidth={2} />
+            : <TrendingDown size={14} strokeWidth={2} />
           }
           {positive ? 'Profitable' : 'Operating at a loss'}
         </div>
         {margin !== null && (
-          <span className="text-xs text-gray-400">
+          <span style={{ fontSize: 12, color: '#B7C4BC' }}>
             {positive ? '' : '-'}{Math.abs(margin)}% net margin
           </span>
         )}

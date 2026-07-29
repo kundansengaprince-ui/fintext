@@ -3,10 +3,11 @@ import { compareModels } from '../../api'
 import Card from '../ui/Card'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts'
 
+// All three models map to forest-family — differentiated by opacity/shade only
 const MODEL_COLORS = {
-  'XGBoost':           '#4f46e5',
-  'Random Forest':     '#10b981',
-  'Linear Regression': '#f59e0b',
+  'XGBoost':           '#0E3B2E',
+  'Random Forest':     '#164C3B',
+  'Linear Regression': '#7A9184',
 }
 
 const scoreLabel = (s) => {
@@ -15,14 +16,6 @@ const scoreLabel = (s) => {
   if (s >= 50) return 'Fair'
   if (s >= 35) return 'Poor'
   return 'Critical'
-}
-
-const scoreBg = (s) => {
-  if (s >= 80) return 'bg-emerald-50 text-emerald-700'
-  if (s >= 65) return 'bg-green-50 text-green-700'
-  if (s >= 50) return 'bg-yellow-50 text-yellow-700'
-  if (s >= 35) return 'bg-orange-50 text-orange-700'
-  return 'bg-red-50 text-red-700'
 }
 
 export default function ModelComparison({ date }) {
@@ -34,8 +27,8 @@ export default function ModelComparison({ date }) {
 
   if (isLoading) return (
     <Card className="p-6 animate-pulse">
-      <div className="h-4 bg-gray-100 rounded w-48 mb-4" />
-      <div className="h-40 bg-gray-100 rounded" />
+      <div className="h-4 rounded w-48 mb-4" style={{ background: '#E2E9E5' }} />
+      <div className="h-40 rounded" style={{ background: '#E2E9E5' }} />
     </Card>
   )
 
@@ -49,23 +42,24 @@ export default function ModelComparison({ date }) {
   return (
     <Card className="p-6">
       <div className="mb-5">
-        <h2 className="text-sm font-semibold text-gray-700">Model Comparison</h2>
-        <p className="text-xs text-gray-400 mt-0.5">
-          Same KPIs scored by three different ML models - for date: {data.date}
+        <h2 className="text-sm font-semibold" style={{ color: '#3D4F47' }}>Model Comparison</h2>
+        <p className="text-xs mt-0.5" style={{ color: '#B7C4BC' }}>
+          Same KPIs scored by three different ML models — for date: {data.date}
         </p>
       </div>
 
       {/* Score cards */}
       <div className="grid grid-cols-3 gap-4 mb-6">
         {Object.entries(data.models).map(([key, m]) => (
-          <div key={key} className="rounded-xl border border-gray-100 p-4 text-center">
-            <div
-              className="w-3 h-3 rounded-full mx-auto mb-2"
-              style={{ backgroundColor: MODEL_COLORS[m.label] }}
-            />
-            <p className="text-xs text-gray-500 font-medium mb-1">{m.label}</p>
-            <p className="text-3xl font-bold text-gray-900">{m.score.toFixed(1)}</p>
-            <span className={`text-xs font-medium px-2 py-0.5 rounded-full mt-1 inline-block ${scoreBg(m.score)}`}>
+          <div key={key} className="rounded-xl p-4 text-center" style={{ border: '1px solid #E2E9E5' }}>
+            <div className="w-3 h-3 rounded-full mx-auto mb-2"
+              style={{ backgroundColor: MODEL_COLORS[m.label] }} />
+            <p className="text-xs font-medium mb-1" style={{ color: '#7A9184' }}>{m.label}</p>
+            <p className="text-3xl font-bold" style={{ fontFamily: "'Fraunces', Georgia, serif", color: '#0A2820' }}>
+              {m.score.toFixed(1)}
+            </p>
+            <span className="text-xs font-medium px-2 py-0.5 rounded-full mt-1 inline-block"
+              style={{ background: 'rgba(14,59,46,0.08)', color: '#0E3B2E' }}>
               {scoreLabel(m.score)}
             </span>
           </div>
@@ -75,12 +69,12 @@ export default function ModelComparison({ date }) {
       {/* Bar chart */}
       <ResponsiveContainer width="100%" height={160}>
         <BarChart data={chartData} barSize={48}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" vertical={false} />
-          <XAxis dataKey="name" tick={{ fontSize: 12, fill: '#6b7280' }} axisLine={false} tickLine={false} />
-          <YAxis domain={[0, 100]} tick={{ fontSize: 11, fill: '#9ca3af' }} axisLine={false} tickLine={false} />
+          <CartesianGrid strokeDasharray="3 3" stroke="#E2E9E5" vertical={false} />
+          <XAxis dataKey="name" tick={{ fontSize: 12, fill: '#7A9184' }} axisLine={false} tickLine={false} />
+          <YAxis domain={[0, 100]} tick={{ fontSize: 11, fill: '#B7C4BC' }} axisLine={false} tickLine={false} />
           <Tooltip
             formatter={(v) => [`${v.toFixed(1)} / 100`, 'Score']}
-            contentStyle={{ borderRadius: 8, border: '1px solid #e5e7eb', fontSize: 12 }}
+            contentStyle={{ borderRadius: 8, border: '1px solid #E2E9E5', fontSize: 12 }}
           />
           <Bar dataKey="score" radius={[6, 6, 0, 0]}>
             {chartData.map((entry) => (
@@ -91,8 +85,10 @@ export default function ModelComparison({ date }) {
       </ResponsiveContainer>
 
       {/* KPIs used */}
-      <div className="mt-5 pt-4 border-t border-gray-100">
-        <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">KPIs fed into all models</p>
+      <div className="mt-5 pt-4" style={{ borderTop: '1px solid #E2E9E5' }}>
+        <p className="text-xs font-semibold uppercase tracking-wide mb-3" style={{ color: '#7A9184' }}>
+          KPIs fed into all models
+        </p>
         <div className="grid grid-cols-3 gap-2">
           {[
             ['Gross Profit Margin', data.kpis.gross_profit_margin, '%'],
@@ -102,9 +98,11 @@ export default function ModelComparison({ date }) {
             ['Total Sales',         (data.kpis.total_sales / 1000).toFixed(0), 'K RWF'],
             ['Transactions',        data.kpis.num_transactions, ''],
           ].map(([label, val, unit]) => (
-            <div key={label} className="bg-gray-50 rounded-lg px-3 py-2">
-              <p className="text-xs text-gray-400">{label}</p>
-              <p className="text-sm font-semibold text-gray-800">{val}{unit}</p>
+            <div key={label} className="rounded-lg px-3 py-2" style={{ background: '#FAFBF9', border: '1px solid #E2E9E5' }}>
+              <p className="text-xs" style={{ color: '#B7C4BC' }}>{label}</p>
+              <p className="text-sm font-semibold" style={{ fontFamily: "'IBM Plex Mono', monospace", color: '#0A2820' }}>
+                {val}{unit}
+              </p>
             </div>
           ))}
         </div>
