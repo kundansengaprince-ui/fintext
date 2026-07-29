@@ -1,11 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
-import {
-  TrendingUp, TrendingDown, AlertTriangle, CheckCircle2,
-  ChevronDown, ChevronUp, Lightbulb, Zap
-} from 'lucide-react'
+import { TrendingUp, TrendingDown, AlertTriangle, CheckCircle, ChevronDown, ChevronUp } from 'lucide-react'
 
-// Format a metric value to 1 decimal place with its unit.
-// Strips "/month" suffix so units match the dashboard cards (e.g. "x" not "x/month").
 export const fmtVal = (n, unit = '') => {
   const cleanUnit = unit.replace('/month', '')
   const num = parseFloat(n)
@@ -22,35 +17,45 @@ const FEATURE_LABELS = {
   num_transactions:         'Transaction Count',
 }
 
-const URGENCY = {
-  high: {
-    bar:    'bg-red-500',
-    badge:  'bg-red-50 text-red-600 border border-red-200',
-    icon:   <AlertTriangle size={14} />,
-    label:  'Needs attention',
-    glow:   'shadow-red-100',
-  },
-  medium: {
-    bar:    'bg-amber-400',
-    badge:  'bg-amber-50 text-amber-600 border border-amber-200',
-    icon:   <Zap size={14} />,
-    label:  'Worth improving',
-    glow:   'shadow-amber-100',
-  },
-  low: {
-    bar:    'bg-emerald-400',
-    badge:  'bg-emerald-50 text-emerald-600 border border-emerald-200',
-    icon:   <CheckCircle2 size={14} />,
-    label:  'Looking good',
-    glow:   'shadow-emerald-100',
-  },
+// Color tokens
+const STATUS = {
+  high:   { color: '#9C4B3E', label: 'Needs attention' },
+  medium: { color: '#C9A15C', label: 'Worth improving' },
+  low:    { color: '#0E3B2E', label: 'Looking good'    },
+}
+
+const SAGE       = '#6B7B74'
+const SAGE_LIGHT = '#9AABA4'
+const GOLD       = '#C9A15C'
+
+function StatusIcon({ urgency, size = 20 }) {
+  const color = STATUS[urgency]?.color ?? STATUS.medium.color
+  const iconStyle = { color, strokeWidth: 1.5 }
+  const wrapStyle = {
+    width: 44, height: 44, borderRadius: '50%',
+    border: `1.5px solid ${color}40`,
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+    flexShrink: 0,
+  }
+  const Icon = urgency === 'low'
+    ? TrendingUp
+    : urgency === 'high'
+      ? AlertTriangle
+      : TrendingDown
+
+  return (
+    <div style={wrapStyle}>
+      <Icon size={size} style={iconStyle} />
+    </div>
+  )
 }
 
 function RecommendationCard({ rec, index, highlight }) {
   const [expanded, setExpanded] = useState(index === 0 || highlight)
   const cardRef = useRef(null)
-  const urgency = URGENCY[rec.urgency] ?? URGENCY.medium
-  const isPositive = rec.urgency === 'low'
+  const status = STATUS[rec.urgency] ?? STATUS.medium
+  const featureLabel = FEATURE_LABELS[rec.feature] ?? rec.feature
+  const isGood = rec.urgency === 'low'
 
   useEffect(() => {
     if (highlight) {
@@ -59,101 +64,152 @@ function RecommendationCard({ rec, index, highlight }) {
     }
   }, [highlight])
 
+  const nowColor = rec.state === 'bad' ? STATUS.high.color : STATUS.low.color
+
   return (
-    <div ref={cardRef} className={`bg-white rounded-2xl shadow-sm ${urgency.glow} border ${
-      highlight ? 'border-red-300 ring-2 ring-red-200' : 'border-gray-100'
-    } overflow-hidden transition-all duration-200`}>
-      {/* Urgency bar */}
-      <div className={`h-1 w-full ${urgency.bar}`} />
+    <div
+      ref={cardRef}
+      style={{
+        background: '#fff',
+        borderRadius: 12,
+        boxShadow: highlight
+          ? `0 0 0 2px ${status.color}40, 0 1px 2px rgba(10,40,32,0.05), 0 1px 12px rgba(10,40,32,0.04)`
+          : '0 1px 2px rgba(10,40,32,0.05), 0 1px 12px rgba(10,40,32,0.04)',
+        padding: '30px 34px',
+        position: 'relative',
+        transition: 'box-shadow 0.2s',
+      }}
+    >
+      {/* Left accent line */}
+      <div style={{
+        position: 'absolute', left: 0, top: 22, bottom: 22,
+        width: 2, borderRadius: 2,
+        background: status.color,
+      }} />
 
-      <div className="p-5">
-        {/* Header row */}
-        <div className="flex items-start justify-between gap-3">
-          <div className="flex items-start gap-3 flex-1 min-w-0">
-            {/* Icon */}
-            <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 mt-0.5 ${
-              isPositive ? 'bg-emerald-50' : rec.urgency === 'high' ? 'bg-red-50' : 'bg-amber-50'
-            }`}>
-              {isPositive
-                ? <TrendingUp size={18} className="text-emerald-600" />
-                : <TrendingDown size={18} className={rec.urgency === 'high' ? 'text-red-500' : 'text-amber-500'} />
-              }
+      {/* Header row */}
+      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16 }}>
+        <div style={{ display: 'flex', alignItems: 'flex-start', gap: 16, flex: 1, minWidth: 0 }}>
+          <StatusIcon urgency={rec.urgency} />
+
+          <div style={{ flex: 1, minWidth: 0 }}>
+            {/* Eyebrow: feature label · status */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
+              <span style={{
+                fontSize: 11.5, fontWeight: 600, color: SAGE,
+                textTransform: 'uppercase', letterSpacing: '0.05em',
+              }}>
+                {featureLabel}
+              </span>
+              <span style={{ width: 3, height: 3, borderRadius: '50%', background: SAGE_LIGHT, flexShrink: 0 }} />
+              <span style={{ fontSize: 11.5, fontWeight: 600, color: status.color }}>
+                {status.label}
+              </span>
             </div>
 
-            <div className="flex-1 min-w-0">
-              {/* Feature tag + urgency badge */}
-              <div className="flex items-center gap-2 flex-wrap mb-1">
-                <span className="text-xs font-medium text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">
-                  {FEATURE_LABELS[rec.feature] ?? rec.feature}
-                </span>
-                <span className={`inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full ${urgency.badge}`}>
-                  {urgency.icon}
-                  {urgency.label}
-                </span>
-              </div>
+            {/* Title */}
+            <h3 style={{
+              fontFamily: "'Fraunces', Georgia, serif",
+              fontSize: 18, fontWeight: 500,
+              color: '#1A2420', margin: 0, lineHeight: 1.3,
+            }}>
+              {rec.title}
+            </h3>
 
-              {/* Title */}
-              <h3 className="text-sm font-bold text-gray-900 leading-snug">
-                {rec.title}
-              </h3>
-              {/* Value vs target pill */}
-              {rec.current_value !== undefined && (
-                <div className="flex items-center gap-2 mt-1.5">
-                  <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
-                    rec.state === 'bad' ? 'bg-red-50 text-red-600' : 'bg-emerald-50 text-emerald-600'
-                  }`}>
-                    Now: {fmtVal(rec.current_value, rec.unit)}
-                  </span>
-                  <span className="text-xs text-gray-400">
-                    Target: {fmtVal(rec.target_value, rec.unit)}
-                  </span>
+            {/* Metric comparison */}
+            {rec.current_value !== undefined && (
+              <div style={{
+                display: 'flex', alignItems: 'stretch', gap: 0,
+                marginTop: 16,
+                border: '1px solid #E8EDEB', borderRadius: 8,
+                overflow: 'hidden', width: 'fit-content',
+              }}>
+                {/* Now block */}
+                <div style={{ padding: '10px 20px', minWidth: 90 }}>
+                  <div style={{ fontSize: 10.5, fontWeight: 600, color: SAGE_LIGHT, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 4 }}>
+                    Now
+                  </div>
+                  <div style={{
+                    fontFamily: "'Fraunces', Georgia, serif",
+                    fontSize: 28, fontWeight: 500, color: nowColor, lineHeight: 1,
+                  }}>
+                    {fmtVal(rec.current_value, rec.unit)}
+                  </div>
                 </div>
-              )}
-            </div>
-          </div>
-
-          {/* Expand toggle */}
-          <button
-            onClick={() => setExpanded(v => !v)}
-            className="text-gray-400 hover:text-gray-600 transition-colors shrink-0 mt-1"
-          >
-            {expanded ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
-          </button>
-        </div>
-
-        {/* Expanded content */}
-        {expanded && (
-          <div className="mt-4 space-y-4 pl-13">
-            {/* Body text */}
-            <p className="text-sm text-gray-600 leading-relaxed pl-[52px]">
-              {rec.body}
-            </p>
-
-            {/* Action steps */}
-            {rec.actions?.length > 0 && (
-              <div className="pl-[52px]">
-                <div className="flex items-center gap-1.5 mb-2">
-                  <Lightbulb size={13} className="text-indigo-500" />
-                  <span className="text-xs font-semibold text-indigo-600 uppercase tracking-wide">
-                    What to do
-                  </span>
+                {/* Divider */}
+                <div style={{ width: 1, background: '#E8EDEB', flexShrink: 0 }} />
+                {/* Target block */}
+                <div style={{ padding: '10px 20px', minWidth: 90 }}>
+                  <div style={{ fontSize: 10.5, fontWeight: 600, color: SAGE_LIGHT, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 4 }}>
+                    Target
+                  </div>
+                  <div style={{
+                    fontFamily: "'IBM Plex Mono', 'Courier New', monospace",
+                    fontSize: 18, fontWeight: 500, color: SAGE, lineHeight: 1,
+                  }}>
+                    {fmtVal(rec.target_value, rec.unit)}
+                  </div>
                 </div>
-                <ul className="space-y-2">
-                  {rec.actions.map((action, i) => (
-                    <li key={i} className="flex items-start gap-2.5 text-sm text-gray-700">
-                      <span className="w-5 h-5 rounded-full bg-indigo-50 text-indigo-600 text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">
-                        {i + 1}
-                      </span>
-                      {action}
-                    </li>
-                  ))}
-                </ul>
               </div>
             )}
-
           </div>
-        )}
+        </div>
+
+        {/* Expand toggle */}
+        <button
+          onClick={() => setExpanded(v => !v)}
+          style={{ color: SAGE_LIGHT, background: 'none', border: 'none', cursor: 'pointer', padding: 4, marginTop: 2, flexShrink: 0 }}
+        >
+          {expanded ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+        </button>
       </div>
+
+      {/* Expanded content */}
+      {expanded && (
+        <div style={{ marginTop: 20, paddingLeft: 60 }}>
+          {/* Body text */}
+          {rec.body && (
+            <p style={{
+              fontSize: 13.5, color: SAGE, lineHeight: 1.7,
+              maxWidth: 880, margin: '0 0 16px 0',
+            }}>
+              {rec.body}
+            </p>
+          )}
+
+          {/* What to do */}
+          {rec.actions?.length > 0 && (
+            <div>
+              <div style={{
+                fontSize: 11, fontWeight: 600, color: STATUS.low.color,
+                textTransform: 'uppercase', letterSpacing: '0.06em',
+                marginBottom: 10,
+              }}>
+                What to do
+              </div>
+              <ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>
+                {rec.actions.map((action, i) => (
+                  <li key={i} style={{
+                    display: 'flex', alignItems: 'flex-start', gap: 14,
+                    marginBottom: 12, lineHeight: 1.5,
+                  }}>
+                    <span style={{
+                      fontFamily: "'IBM Plex Mono', 'Courier New', monospace",
+                      fontSize: 12, fontWeight: 500, color: GOLD,
+                      flexShrink: 0, marginTop: 1,
+                    }}>
+                      {String(i + 1).padStart(2, '0')}
+                    </span>
+                    <span style={{ fontSize: 13.5, color: SAGE, lineHeight: 1.5 }}>
+                      {action}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   )
 }
@@ -165,43 +221,60 @@ export default function Recommendations({ recommendations = [], highlightFeature
 
   if (!sorted.length) {
     return (
-      <div className="bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-100 rounded-2xl p-6">
-        <div className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-2xl bg-emerald-100 flex items-center justify-center shrink-0">
-            <CheckCircle2 size={24} className="text-emerald-600" />
-          </div>
-          <div>
-            <p className="font-bold text-emerald-800">Business is in great shape!</p>
-            <p className="text-sm text-emerald-600 mt-0.5">
-              All key metrics are performing well. No critical actions required right now.
-            </p>
-          </div>
+      <div style={{
+        background: '#fff',
+        borderRadius: 12,
+        boxShadow: '0 1px 2px rgba(10,40,32,0.05), 0 1px 12px rgba(10,40,32,0.04)',
+        padding: '30px 34px',
+        display: 'flex', alignItems: 'center', gap: 16,
+      }}>
+        <div style={{
+          width: 44, height: 44, borderRadius: '50%',
+          border: `1.5px solid ${STATUS.low.color}40`,
+          display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+        }}>
+          <CheckCircle size={20} style={{ color: STATUS.low.color, strokeWidth: 1.5 }} />
+        </div>
+        <div>
+          <p style={{ fontFamily: "'Fraunces', Georgia, serif", fontSize: 18, fontWeight: 500, color: '#1A2420', margin: '0 0 4px 0' }}>
+            Business is in great shape!
+          </p>
+          <p style={{ fontSize: 13.5, color: SAGE, margin: 0, lineHeight: 1.6 }}>
+            All key metrics are performing well. No critical actions required right now.
+          </p>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="space-y-3">
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
       {/* Section header */}
-      <div className="flex items-center justify-between">
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
         <div>
-          <h2 className="text-base font-bold text-gray-900">AI Recommendations</h2>
-          <p className="text-xs text-gray-400 mt-0.5">
-            Powered by ML — ranked by impact on your health score
+          <h2 style={{ fontSize: 16, fontWeight: 700, color: '#1A2420', margin: '0 0 2px 0' }}>AI Recommendations</h2>
+          <p style={{ fontSize: 12, color: SAGE_LIGHT, margin: 0 }}>
+            Powered by ML - ranked by impact on your health score
           </p>
         </div>
         {urgent.length > 0 && (
-          <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-red-600 bg-red-50 border border-red-200 px-3 py-1.5 rounded-full">
-            <AlertTriangle size={12} />
+          <span style={{
+            display: 'inline-flex', alignItems: 'center', gap: 6,
+            fontSize: 12, fontWeight: 600, color: STATUS.high.color,
+            border: `1px solid ${STATUS.high.color}30`,
+            borderRadius: 20, padding: '5px 12px',
+          }}>
+            <AlertTriangle size={12} strokeWidth={1.5} />
             {urgent.length} urgent
           </span>
         )}
       </div>
 
-      {sorted.map((rec, i) => (
-        <RecommendationCard key={rec.feature} rec={rec} index={i} highlight={rec.feature === highlightFeature} />
-      ))}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+        {sorted.map((rec, i) => (
+          <RecommendationCard key={rec.feature} rec={rec} index={i} highlight={rec.feature === highlightFeature} />
+        ))}
+      </div>
     </div>
   )
 }

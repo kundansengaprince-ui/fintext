@@ -20,7 +20,7 @@ export default function ScoreTrendChart({ data = [] }) {
   if (!chartData.length) {
     return (
       <div className="h-48 flex items-center justify-center text-gray-400 text-sm">
-        No history data yet — compute scores to populate this chart.
+        No history data yet - compute scores to populate this chart.
       </div>
     )
   }

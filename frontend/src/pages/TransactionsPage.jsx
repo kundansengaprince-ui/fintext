@@ -63,7 +63,7 @@ export default function TransactionsPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Transaction History</h1>
-          <p className="text-sm text-gray-500 mt-0.5">All POS orders — full audit trail</p>
+          <p className="text-sm text-gray-500 mt-0.5">All POS orders - full audit trail</p>
         </div>
       </div>
 

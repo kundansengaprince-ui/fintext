@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import { Activity, Eye, EyeOff, ShieldCheck } from 'lucide-react'
+import { Eye, EyeOff, ShieldCheck } from 'lucide-react'
+import logo from '../assets/IMG_2569.PNG'
 import toast from 'react-hot-toast'
 
 export default function LoginPage() {
@@ -49,8 +50,8 @@ export default function LoginPage() {
 
         {/* Logo */}
         <div className="flex flex-col items-center mb-8">
-          <div className="w-16 h-16 rounded-2xl bg-indigo-600 flex items-center justify-center mb-4 shadow-lg shadow-indigo-900/50">
-            <Activity size={32} className="text-white" />
+          <div className="w-16 h-16 rounded-2xl overflow-hidden mb-4 shadow-lg shadow-indigo-900/50">
+            <img src={logo} alt="FinText logo" className="w-full h-full object-cover" />
           </div>
           {savedBusiness ? (
             <>

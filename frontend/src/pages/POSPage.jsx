@@ -59,7 +59,7 @@ export default function POSPage() {
       qc.invalidateQueries({ queryKey: ['inventory-records'] })
       qc.invalidateQueries({ queryKey: ['low-stock'] })
       qc.invalidateQueries({ queryKey: ['transactions'] })
-      toast.success(`Order #${res.data.id} saved — RWF ${fmt(res.data.total)}`)
+      toast.success(`Order #${res.data.id} saved - RWF ${fmt(res.data.total)}`)
     },
     onError: () => toast.error('Could not save order.'),
   })
@@ -74,7 +74,7 @@ export default function POSPage() {
             {itemCount} items
           </span>
         )}
-        {/* Close button — mobile only */}
+        {/* Close button - mobile only */}
         <button onClick={() => setCartOpen(false)} className="lg:hidden ml-2 text-gray-400 hover:text-gray-600">
           <X size={18} />
         </button>
@@ -161,7 +161,7 @@ export default function POSPage() {
           <div className="bg-emerald-50 border border-emerald-200 rounded-2xl px-5 py-3 flex items-center gap-3">
             <CheckCircle size={16} className="text-emerald-600 shrink-0" />
             <div>
-              <p className="text-sm font-semibold text-emerald-700">Order #{lastTxn.id} saved — RWF {fmt(lastTxn.total)}</p>
+              <p className="text-sm font-semibold text-emerald-700">Order #{lastTxn.id} saved - RWF {fmt(lastTxn.total)}</p>
               <p className="text-xs text-emerald-500">Sales &amp; inventory updated automatically</p>
             </div>
             <button onClick={() => setLastTxn(null)} className="ml-auto text-emerald-400 hover:text-emerald-600">
@@ -214,7 +214,7 @@ export default function POSPage() {
         )}
       </div>
 
-      {/* ── Right: order panel — desktop sidebar ── */}
+      {/* Right: order panel - desktop sidebar */}
       <div className="hidden lg:flex w-80 shrink-0">
         <Card className="flex-1 flex flex-col overflow-hidden w-full">
           <OrderPanel />

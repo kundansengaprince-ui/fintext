@@ -59,7 +59,7 @@ export default function AuditPage() {
           <h1 className="text-2xl font-bold text-gray-900">Audit Log</h1>
         </div>
         <p className="text-sm text-gray-500 mt-1">
-          Every action taken in the system — who did what and when.
+          Every action taken in the system - who did what and when.
         </p>
       </div>
 

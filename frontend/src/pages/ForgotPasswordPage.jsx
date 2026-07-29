@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Activity, ArrowLeft, Mail } from 'lucide-react'
+import { ArrowLeft, Mail } from 'lucide-react'
+import logo from '../assets/IMG_2569.PNG'
 import toast from 'react-hot-toast'
 import { forgotPassword } from '../api'
 
@@ -27,8 +28,8 @@ export default function ForgotPasswordPage() {
       <div className="w-full max-w-md">
 
         <div className="flex flex-col items-center mb-8">
-          <div className="w-16 h-16 rounded-2xl bg-indigo-600 flex items-center justify-center mb-4 shadow-lg shadow-indigo-900/50">
-            <Activity size={32} className="text-white" />
+          <div className="w-16 h-16 rounded-2xl overflow-hidden mb-4 shadow-lg shadow-indigo-900/50">
+            <img src={logo} alt="FinText logo" className="w-full h-full object-cover" />
           </div>
           <h1 className="text-2xl font-bold text-white">Forgot password?</h1>
           <p className="text-indigo-300 text-sm mt-1 text-center">

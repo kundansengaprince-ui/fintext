@@ -79,7 +79,7 @@ export default function SalesForm({ existing, onDone }) {
     <form onSubmit={submit} className="space-y-4">
       {existingForDate && !existing && (
         <div className="bg-amber-50 border border-amber-200 rounded-xl px-4 py-2 text-sm text-amber-700">
-          A record already exists for this date — editing it.
+          A record already exists for this date - editing it.
         </div>
       )}
       <Input label="Date" type="date" value={date}

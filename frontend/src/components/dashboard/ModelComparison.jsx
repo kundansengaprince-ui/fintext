@@ -51,7 +51,7 @@ export default function ModelComparison({ date }) {
       <div className="mb-5">
         <h2 className="text-sm font-semibold text-gray-700">Model Comparison</h2>
         <p className="text-xs text-gray-400 mt-0.5">
-          Same KPIs scored by three different ML models — for date: {data.date}
+          Same KPIs scored by three different ML models - for date: {data.date}
         </p>
       </div>
 

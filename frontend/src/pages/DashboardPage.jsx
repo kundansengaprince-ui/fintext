@@ -38,16 +38,16 @@ function ExecutiveSummary({ score, topRec }) {
 
   let text, style
   if (profitable && topRec?.urgency === 'high') {
-    text  = `Your business is profitable but losing money to ${feature.toLowerCase()} — fixing this is your #1 lever this month.`
+    text  = `Your business is profitable but losing money to ${feature.toLowerCase()} - fixing this is your #1 lever this month.`
     style = 'bg-amber-50 border-amber-200 text-amber-800'
   } else if (profitable) {
-    text  = `Your business is profitable and healthy — keep monitoring ${feature ?? 'your key metrics'} to stay on track.`
+    text  = `Your business is profitable and healthy - keep monitoring ${feature ?? 'your key metrics'} to stay on track.`
     style = 'bg-emerald-50 border-emerald-200 text-emerald-800'
   } else if (topRec?.urgency === 'high') {
-    text  = `Your business is currently operating at a loss, largely driven by ${feature.toLowerCase()} — this needs immediate attention.`
+    text  = `Your business is currently operating at a loss, largely driven by ${feature.toLowerCase()} - this needs immediate attention.`
     style = 'bg-red-50 border-red-200 text-red-800'
   } else {
-    text  = `Your business is currently operating at a loss — review your Reports page for a full breakdown.`
+    text  = `Your business is currently operating at a loss - review your Reports page for a full breakdown.`
     style = 'bg-gray-50 border-gray-200 text-gray-700'
   }
 
@@ -65,7 +65,7 @@ function BiggestDrag({ recommendations = [], onClickFeature }) {
   if (top.urgency === 'low') {
     return (
       <p className="text-xs text-emerald-600 font-medium mt-3">
-        ✓ No urgent issues — strongest metric: {top.title}
+        ✓ No urgent issues - strongest metric: {top.title}
       </p>
     )
   }
@@ -112,7 +112,7 @@ export default function DashboardPage() {
       toast.success('Health score computed successfully.')
     },
     onError: (err) => {
-      const msg = err.response?.data?.error ?? 'Could not compute score — make sure data exists for this date.'
+      const msg = err.response?.data?.error ?? 'Could not compute score - make sure data exists for this date.'
       toast.error(msg)
     },
   })
@@ -164,7 +164,7 @@ export default function DashboardPage() {
         <>
           <ExecutiveSummary score={latest} topRec={topRecommendation(latest.recommendations)} />
 
-          {/* Hero row — health score centrepiece */}
+          {/* Hero row - health score centrepiece */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <Card className="lg:col-span-1 flex flex-col items-center justify-center py-8 bg-gradient-to-b from-indigo-50 to-white border-indigo-100">
               <p className="text-xs font-semibold text-indigo-400 uppercase tracking-widest mb-3">Business Health Score</p>

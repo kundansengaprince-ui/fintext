@@ -73,11 +73,11 @@ export default function InventoryPage() {
           <div className="flex items-start gap-3">
             <AlertTriangle size={18} className="text-red-500 shrink-0 mt-0.5" />
             <div>
-              <p className="text-sm font-bold text-red-700">Low Stock Alert — {lowStock.length} item{lowStock.length > 1 ? 's' : ''} need restocking</p>
+              <p className="text-sm font-bold text-red-700">Low Stock Alert - {lowStock.length} item{lowStock.length > 1 ? 's' : ''} need restocking</p>
               <div className="flex flex-wrap gap-2 mt-2">
                 {lowStock.map(item => (
                   <span key={item.id} className="inline-flex items-center gap-1 text-xs bg-red-100 text-red-700 border border-red-200 px-2.5 py-1 rounded-full font-medium">
-                    {item.name} — {item.closing_quantity} {item.unit} left (reorder at {item.reorder_level})
+                    {item.name} - {item.closing_quantity} {item.unit} left (reorder at {item.reorder_level})
                   </span>
                 ))}
               </div>

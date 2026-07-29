@@ -156,7 +156,7 @@ export default function MenuPage() {
             <Input label="Price (RWF)" type="number" min="1" step="1" value={form.price} onChange={set('price')} placeholder="e.g. 1500" required />
           </div>
           <Select label="Linked Inventory Item (optional)" value={form.inventory_item} onChange={set('inventory_item')}>
-            <option value="">None — no stock deduction</option>
+            <option value="">None - no stock deduction</option>
             {invItems.map(i => <option key={i.id} value={i.id}>{i.name} ({i.unit})</option>)}
           </Select>
           {form.inventory_item && (

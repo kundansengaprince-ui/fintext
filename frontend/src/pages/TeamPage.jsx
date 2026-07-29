@@ -105,7 +105,7 @@ function MemberForm({ existing, onDone }) {
           <strong>Access: </strong>
           {ROLES.find(r => r.value === form.role) && {
             MANAGER:         'Full access to all modules, can compute health scores',
-            CASHIER:         'Sales module only — records daily transactions',
+            CASHIER:         'Sales module only - records daily transactions',
             FINANCE_OFFICER: 'Expenses (full) + Sales, Inventory, Customers (view only)',
             IT_ADMIN:        'Team management + dashboard and data (view only)',
             FLOOR_STAFF:     'Customer retention records only',

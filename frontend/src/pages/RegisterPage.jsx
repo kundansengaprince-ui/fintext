@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
-import { Activity, Eye, EyeOff, Check, X, Loader2 } from 'lucide-react'
+import { Eye, EyeOff, Check, X, Loader2 } from 'lucide-react'
+import logo from '../assets/IMG_2569.PNG'
 import toast from 'react-hot-toast'
 import { register as apiRegister, checkUsername } from '../api'
 import { useAuth } from '../context/AuthContext'
@@ -19,7 +20,7 @@ const PW_RULES = [
   { label: 'Special character (!@#$…)', test: (p) => /[!@#$%^&*(),.?":{}|<>_\-]/.test(p) },
 ]
 
-// Only block characters that are outright invalid — never complain about length while typing
+// Only block characters that are outright invalid - never complain about length while typing
 function validateUsernameFormat(value) {
   if (!value) return null
   if (value.length > 30) return 'Maximum 30 characters.'
@@ -88,7 +89,7 @@ export default function RegisterPage() {
       return
     }
 
-    // Format is fine — debounce the server availability check
+    // Format is fine - debounce the server availability check
     setUnStatus('checking')
     clearTimeout(debounceRef.current)
     debounceRef.current = setTimeout(async () => {
@@ -135,7 +136,7 @@ export default function RegisterPage() {
   }
 
   const handleOAuth = (provider) => {
-    // Redirect to allauth's OAuth flow — it will redirect back after auth
+    // Redirect to allauth's OAuth flow - it will redirect back after auth
     window.location.href = `/api/auth/oauth/${provider}/login/?next=/oauth-success`
   }
 
@@ -155,8 +156,8 @@ export default function RegisterPage() {
 
         {/* Header */}
         <div className="flex flex-col items-center mb-8">
-          <div className="w-16 h-16 rounded-2xl bg-indigo-600 flex items-center justify-center mb-4 shadow-lg shadow-indigo-900/50">
-            <Activity size={32} className="text-white" />
+          <div className="w-16 h-16 rounded-2xl overflow-hidden mb-4 shadow-lg shadow-indigo-900/50">
+            <img src={logo} alt="FinText logo" className="w-full h-full object-cover" />
           </div>
           <h1 className="text-2xl font-bold text-white">Create your account</h1>
           <p className="text-indigo-300 text-sm mt-1">Business Health Dashboard</p>
@@ -253,7 +254,7 @@ export default function RegisterPage() {
                   {(unStatus === 'taken' || unStatus === 'format_error') && <X size={16} className="text-red-400" />}
                 </div>
               </div>
-              {/* Live feedback only — no static hint */}
+              {/* Live feedback only - no static hint */}
               {unError && (
                 <p className={`text-xs mt-1 ${unStatus === 'format_error' ? 'text-yellow-400' : 'text-red-400'}`}>
                   {unError}

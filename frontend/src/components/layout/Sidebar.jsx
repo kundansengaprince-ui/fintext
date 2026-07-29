@@ -1,5 +1,6 @@
 import { NavLink } from 'react-router-dom'
-import { LayoutDashboard, TrendingUp, Receipt, Package, Users, UserCog, BarChart2, LogOut, Activity, ShieldCheck, ClipboardList, ShoppingCart, UtensilsCrossed, History } from 'lucide-react'
+import { LayoutDashboard, TrendingUp, Receipt, Package, Users, UserCog, BarChart2, LogOut, ShieldCheck, ClipboardList, ShoppingCart, UtensilsCrossed, History } from 'lucide-react'
+import logo from '../../assets/IMG_2569.PNG'
 import { useAuth } from '../../context/AuthContext'
 
 const roleColors = {
@@ -41,8 +42,8 @@ export default function Sidebar() {
       {/* Logo */}
       <div className="p-6 border-b border-gray-800">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-indigo-600 flex items-center justify-center">
-            <Activity size={18} />
+          <div className="w-9 h-9 rounded-xl overflow-hidden">
+            <img src={logo} alt="FinText logo" className="w-full h-full object-cover" />
           </div>
           <div>
             <p className="font-bold text-sm leading-tight">{business?.name ?? 'My Business'}</p>
