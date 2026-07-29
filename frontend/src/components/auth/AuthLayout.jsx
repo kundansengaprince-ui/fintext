@@ -112,18 +112,17 @@ export default function AuthLayout({ children }) {
   )
 }
 
+import logo from '../assets/IMG_2569.PNG'
+
 // ── Brand lockup ──────────────────────────────────────────────────────────────
 export function BrandLockup({ title, subtitle }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: 28 }}>
-      <div style={{
-        width: 56, height: 56, borderRadius: 14,
-        background: 'linear-gradient(135deg, #C9A15C 0%, #A07C3A 100%)',
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
+      <img src={logo} alt="FinText" style={{
+        width: 64, height: 64, borderRadius: 14, objectFit: 'cover',
         marginBottom: 18,
-      }}>
-        <span style={{ fontFamily: "'Fraunces', Georgia, serif", fontSize: 26, fontWeight: 600, color: '#061A14', lineHeight: 1 }}>F</span>
-      </div>
+        boxShadow: '0 4px 20px rgba(0,0,0,0.3)',
+      }} />
       <h1 style={{ fontFamily: "'Fraunces', Georgia, serif", fontSize: 30, fontWeight: 500, color: '#fff', margin: '0 0 6px 0', textAlign: 'center' }}>
         {title}
       </h1>

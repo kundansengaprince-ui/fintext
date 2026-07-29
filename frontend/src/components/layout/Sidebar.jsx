@@ -1,6 +1,7 @@
 import { NavLink } from 'react-router-dom'
 import { LayoutDashboard, TrendingUp, Receipt, Package, Users, UserCog, BarChart2, LogOut, ShieldCheck, ClipboardList, ShoppingCart, UtensilsCrossed, History } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
+import logo from '../../assets/IMG_2569.PNG'
 
 const roleLabels = {
   MANAGER:         'Manager',
@@ -42,13 +43,9 @@ export default function Sidebar() {
       {/* Brand lockup */}
       <div style={{ padding: '22px 20px 18px', borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <div style={{
-            width: 34, height: 34, borderRadius: 9,
-            background: 'linear-gradient(135deg, #C9A15C 0%, #A07C3A 100%)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
-          }}>
-            <span style={{ fontFamily: "'Fraunces', Georgia, serif", fontSize: 17, fontWeight: 600, color: '#061A14', lineHeight: 1 }}>F</span>
-          </div>
+          <img src={logo} alt="FinText" style={{
+            width: 34, height: 34, borderRadius: 9, objectFit: 'cover', flexShrink: 0,
+          }} />
           <div style={{ minWidth: 0 }}>
             <p style={{ fontSize: 13, fontWeight: 600, color: '#fff', lineHeight: 1.2, margin: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
               {business?.name ?? 'My Business'}
