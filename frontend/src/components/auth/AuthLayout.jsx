@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import logo from '../assets/IMG_2569.PNG'
 
 // ── Tokens ────────────────────────────────────────────────────────────────────
 const GOLD  = 'rgba(201,161,92,0.16)'
@@ -112,7 +113,6 @@ export default function AuthLayout({ children }) {
   )
 }
 
-import logo from '../assets/IMG_2569.PNG'
 
 // ── Brand lockup ──────────────────────────────────────────────────────────────
 export function BrandLockup({ title, subtitle }) {
