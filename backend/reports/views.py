@@ -208,16 +208,10 @@ class FinancialAnalyticsView(APIView):
         net_profit = float(revenue) - float(expenses)
         margin_pct = round((net_profit / float(revenue) * 100), 2) if revenue else 0
 
-        # Cash balance = cumulative revenue - cumulative expenses (all time up to d_to)
-        total_rev_all = SalesRecord.objects.filter(
-            business=business, date__lte=d_to
-        ).aggregate(t=Sum('total_sales'))['t'] or 0
-        total_exp_all = ExpenseReport.objects.filter(
-            business=business, date__lte=d_to
-        ).aggregate(t=Sum('amount'))['t'] or 0
-        cash_balance = float(total_rev_all) - float(total_exp_all)
+        # Cash balance = net profit within the selected date range (revenue - expenses for that period)
+        cash_balance = net_profit
 
-        # Cash runway: avg monthly burn over last 3 months
+        # Cash runway: avg monthly net over last 3 months (only meaningful if burning cash)
         three_months_ago = d_to - relativedelta(months=3)
         rev_3m = SalesRecord.objects.filter(
             business=business, date__gt=three_months_ago, date__lte=d_to
@@ -226,7 +220,7 @@ class FinancialAnalyticsView(APIView):
             business=business, date__gt=three_months_ago, date__lte=d_to
         ).aggregate(t=Sum('amount'))['t'] or 0
         avg_monthly_burn = (float(exp_3m) - float(rev_3m)) / 3
-        runway_months = round(cash_balance / avg_monthly_burn, 1) if avg_monthly_burn > 0 else None
+        runway_months = round(float(exp_3m - rev_3m) / (float(exp_3m) / 3), 1) if exp_3m > rev_3m else None
 
         # ── 2. Revenue by source ─────────────────────────────────────────────
         rev_agg = SalesRecord.objects.filter(

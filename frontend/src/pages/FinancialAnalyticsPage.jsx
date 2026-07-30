@@ -383,13 +383,13 @@ export default function FinancialAnalyticsPage() {
           </div>
 
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            <KPICard label="Cash Balance" value={fmtRWF(kpis.cash_balance)} icon={Droplets} warn={kpis.cash_balance < 0} />
+            <KPICard label="Net Cash (Period)" value={fmtRWF(kpis.cash_balance)} icon={Droplets} warn={kpis.cash_balance < 0} />
             <KPICard
               label="Cash Runway"
-              value={kpis.runway_months != null ? `${kpis.runway_months} mo` : 'N/A'}
+              value={kpis.runway_months != null ? `${kpis.runway_months} mo` : 'Profitable'}
               icon={Calendar}
               warn={kpis.runway_months != null && kpis.runway_months < 3}
-              sub={kpis.runway_months != null && kpis.runway_months < 3 ? 'Less than 3 months — act now' : undefined}
+              sub={kpis.runway_months != null && kpis.runway_months < 3 ? 'Less than 3 months — act now' : kpis.runway_months != null ? 'At current burn rate' : 'No cash burn in last 3 months'}
             />
           </div>
 
