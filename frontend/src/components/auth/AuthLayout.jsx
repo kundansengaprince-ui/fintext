@@ -1,5 +1,6 @@
+//frontend/src/components/auth/AuthLayout.jsx
 import { useState } from 'react'
-import logo from '../assets/IMG_2569.PNG'
+import logo from '../../assets/IMG_2569.PNG'
 
 // ── Tokens ────────────────────────────────────────────────────────────────────
 const GOLD  = 'rgba(201,161,92,0.16)'
