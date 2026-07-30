@@ -65,3 +65,6 @@ export const compareModels = (date) => api.get('/health-score/compare/', { param
 
 // Financial Analytics
 export const getFinancialAnalytics = (params) => api.get('/reports/analytics/', { params })
+export const getBudgetSuggestions  = (month)  => api.get('/reports/budget-suggestions/', { params: { month } })
+export const getBudgets            = (month)  => api.get('/reports/budgets/', { params: { month } })
+export const saveBudget            = (data)   => api.post('/reports/budgets/', data)

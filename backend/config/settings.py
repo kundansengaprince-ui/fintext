@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'audit',
     'mitchhub',
     'pos',
+    'reports',
 ]
 
 MIDDLEWARE = [

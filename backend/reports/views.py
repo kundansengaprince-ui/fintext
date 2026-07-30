@@ -6,13 +6,16 @@ from django.db.models import Sum, Avg, Q
 from django.db.models.functions import TruncMonth
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework import status
 
 from sales.models import SalesRecord
-from expenses.models import ExpenseReport
+from expenses.models import ExpenseReport, ExpenseCategory
 from inventory.models import InventoryRecord
 from customers.models import CustomerRetentionRecord
 from health_score.models import BusinessHealthScore
 from core.permissions import DashboardPermission
+from .models import ExpenseBudget
+from .services import suggest_budget
 
 
 def _date_range(request):
@@ -304,9 +307,36 @@ class FinancialAnalyticsView(APIView):
                 'cash_balance': round(running_cash, 2),
             })
 
-        # ── 5. Budget vs actual — no budget model exists ──────────────────────
-        # To enable this, add a model: ExpenseBudget(business, category, month, budgeted_amount)
+        # ── 5. Budget vs actual ─────────────────────────────────────────────
+        # Use the first day of d_to's month as the budget month key
+        budget_month = d_to.replace(day=1)
+        saved_budgets = {
+            b.category_id: float(b.budgeted_amount)
+            for b in ExpenseBudget.objects.filter(
+                business=business, month=budget_month
+            )
+        }
+        # Build category_id lookup from the already-fetched expense rows
+        cat_ids = {
+            r['category__name']: r['category__id']
+            for r in ExpenseReport.objects
+                .filter(business=business, date__gte=d_from, date__lte=d_to)
+                .values('category__name', 'category__id')
+                .distinct()
+        }
         budget_vs_actual = []
+        for row in expense_by_category:
+            cat_name = row['category']
+            cat_id   = cat_ids.get(cat_name)
+            budgeted = saved_budgets.get(cat_id) if cat_id else None
+            actual   = row['amount']
+            budget_vs_actual.append({
+                'category':        cat_name,
+                'category_id':     cat_id,
+                'actual':          actual,
+                'budgeted_amount': budgeted,
+                'overspend':       round(actual - budgeted, 2) if budgeted is not None else None,
+            })
 
         # ── 6. Recent transactions ────────────────────────────────────────────
         recent_sales = (
@@ -359,3 +389,101 @@ class FinancialAnalyticsView(APIView):
             'budget_vs_actual':    budget_vs_actual,
             'recent_transactions': recent_transactions,
         })
+
+
+class BudgetSuggestionsView(APIView):
+    """
+    GET /api/reports/budget-suggestions/?month=YYYY-MM-DD
+    Returns AI-suggested budget per category for the given month.
+    Does NOT save anything.
+    """
+    permission_classes = [DashboardPermission]
+
+    def get(self, request):
+        business = request.user.business
+        month_str = request.query_params.get('month')
+        try:
+            target_month = date.fromisoformat(month_str).replace(day=1)
+        except (TypeError, ValueError):
+            return Response({'error': 'month param required as YYYY-MM-DD'}, status=status.HTTP_400_BAD_REQUEST)
+
+        categories = ExpenseCategory.objects.all()
+        suggestions = []
+        for cat in categories:
+            amount = suggest_budget(business, cat, target_month)
+            if amount is not None:
+                suggestions.append({
+                    'category_id':   cat.id,
+                    'category_name': cat.name,
+                    'suggested_amount': amount,
+                })
+        return Response(suggestions)
+
+
+class BudgetView(APIView):
+    """
+    GET  /api/reports/budgets/?month=YYYY-MM-DD  — list saved budgets for month
+    POST /api/reports/budgets/                   — create or update a budget row
+    """
+    permission_classes = [DashboardPermission]
+
+    def get(self, request):
+        business = request.user.business
+        month_str = request.query_params.get('month')
+        try:
+            month = date.fromisoformat(month_str).replace(day=1)
+        except (TypeError, ValueError):
+            return Response({'error': 'month param required as YYYY-MM-DD'}, status=status.HTTP_400_BAD_REQUEST)
+
+        budgets = (
+            ExpenseBudget.objects
+            .select_related('category')
+            .filter(business=business, month=month)
+        )
+        return Response([
+            {
+                'id':               b.id,
+                'category_id':      b.category_id,
+                'category_name':    b.category.name,
+                'month':            str(b.month),
+                'budgeted_amount':  float(b.budgeted_amount),
+                'is_ai_suggested':  b.is_ai_suggested,
+            }
+            for b in budgets
+        ])
+
+    def post(self, request):
+        business = request.user.business
+        data = request.data
+
+        try:
+            category_id      = int(data['category_id'])
+            month            = date.fromisoformat(data['month']).replace(day=1)
+            budgeted_amount  = float(data['budgeted_amount'])
+            is_ai_suggested  = bool(data.get('is_ai_suggested', False))
+        except (KeyError, TypeError, ValueError) as e:
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            category = ExpenseCategory.objects.get(pk=category_id)
+        except ExpenseCategory.DoesNotExist:
+            return Response({'error': 'Category not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        budget, created = ExpenseBudget.objects.update_or_create(
+            business=business,
+            category=category,
+            month=month,
+            defaults={
+                'budgeted_amount': budgeted_amount,
+                'is_ai_suggested': is_ai_suggested,
+            },
+        )
+        return Response({
+            'id':              budget.id,
+            'category_id':     budget.category_id,
+            'category_name':   budget.category.name,
+            'month':           str(budget.month),
+            'budgeted_amount': float(budget.budgeted_amount),
+            'is_ai_suggested': budget.is_ai_suggested,
+            'created':         created,
+        }, status=status.HTTP_201_CREATED if created else status.HTTP_200_OK)

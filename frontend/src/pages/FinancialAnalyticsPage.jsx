@@ -1,12 +1,13 @@
-import { useState } from 'react'
-import { useQuery } from '@tanstack/react-query'
+import { useState, useCallback } from 'react'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import {
   ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid,
-  Tooltip, Legend, LineChart, Line,
+  Tooltip, Legend, LineChart, Line, Cell,
 } from 'recharts'
-import { getFinancialAnalytics } from '../api'
+import { getFinancialAnalytics, getBudgetSuggestions, saveBudget } from '../api'
 import Card from '../components/ui/Card'
-import { TrendingUp, TrendingDown, DollarSign, Percent, Droplets, AlertTriangle, Calendar } from 'lucide-react'
+import toast from 'react-hot-toast'
+import { TrendingUp, TrendingDown, DollarSign, Percent, Droplets, AlertTriangle, Calendar, Sparkles, Save } from 'lucide-react'
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 const today   = () => new Date().toISOString().split('T')[0]
@@ -171,6 +172,139 @@ function TransactionsTable({ rows = [] }) {
         </tbody>
       </table>
     </div>
+  )
+}
+
+// ── Budget vs Actual ─────────────────────────────────────────────────────────
+function BudgetRow({ row, budgetMonth, onSaved }) {
+  const qc = useQueryClient()
+  const [inputVal, setInputVal] = useState('')
+  const [loadingSuggest, setLoadingSuggest] = useState(false)
+
+  const mutation = useMutation({
+    mutationFn: (data) => saveBudget(data),
+    onSuccess: () => {
+      toast.success(`Budget saved for ${row.category}`)
+      qc.invalidateQueries({ queryKey: ['financial-analytics'] })
+      onSaved()
+    },
+    onError: () => toast.error('Could not save budget.'),
+  })
+
+  const handleSuggest = useCallback(async () => {
+    setLoadingSuggest(true)
+    try {
+      const res = await getBudgetSuggestions(budgetMonth)
+      const match = res.data.find(s => s.category_name === row.category)
+      if (match) {
+        setInputVal(String(match.suggested_amount))
+        toast.success(`AI suggestion loaded for ${row.category}`)
+      } else {
+        toast('No history found — enter a budget manually.')
+      }
+    } catch {
+      toast.error('Could not fetch suggestion.')
+    } finally {
+      setLoadingSuggest(false)
+    }
+  }, [budgetMonth, row.category])
+
+  const handleSave = () => {
+    const amount = parseFloat(inputVal)
+    if (!amount || amount <= 0) { toast.error('Enter a valid amount.'); return }
+    mutation.mutate({
+      category_id:      row.category_id,
+      month:            budgetMonth,
+      budgeted_amount:  amount,
+      is_ai_suggested:  false,
+    })
+  }
+
+  const overspend = row.budgeted_amount != null && row.actual > row.budgeted_amount
+  const pct = row.budgeted_amount ? Math.round(row.actual / row.budgeted_amount * 100) : null
+
+  return (
+    <div style={{ display: 'grid', gridTemplateColumns: '1fr 120px 120px 1fr auto', alignItems: 'center', gap: 12, padding: '12px 0', borderTop: '1px solid #F0F4F2' }}>
+      {/* Category + bar */}
+      <div>
+        <p style={{ fontSize: 13, fontWeight: 500, color: '#0A2820', margin: '0 0 6px' }}>{row.category}</p>
+        {row.budgeted_amount != null && (
+          <div style={{ height: 6, borderRadius: 3, background: '#E2E9E5', overflow: 'hidden' }}>
+            <div style={{
+              height: '100%', borderRadius: 3,
+              width: `${Math.min(pct, 100)}%`,
+              background: overspend ? RED : FOREST,
+              transition: 'width 0.4s',
+            }} />
+          </div>
+        )}
+      </div>
+      {/* Actual */}
+      <div style={{ textAlign: 'right' }}>
+        <p style={{ fontSize: 11, color: SAGE, margin: '0 0 2px' }}>Actual</p>
+        <p style={{ fontSize: 13, fontWeight: 600, color: RED, margin: 0 }}>{fmtRWF(row.actual)}</p>
+      </div>
+      {/* Budget */}
+      <div style={{ textAlign: 'right' }}>
+        <p style={{ fontSize: 11, color: SAGE, margin: '0 0 2px' }}>Budget</p>
+        <p style={{ fontSize: 13, fontWeight: 600, color: row.budgeted_amount != null ? (overspend ? RED : FOREST) : SAGE, margin: 0 }}>
+          {row.budgeted_amount != null ? fmtRWF(row.budgeted_amount) : '—'}
+          {overspend && <span style={{ fontSize: 10, marginLeft: 4, color: RED }}>+{fmtPct((row.actual - row.budgeted_amount) / row.budgeted_amount * 100)} over</span>}
+        </p>
+      </div>
+      {/* Input */}
+      <input
+        type="number" min="0" placeholder="Set budget…"
+        value={inputVal}
+        onChange={e => setInputVal(e.target.value)}
+        style={{ border: '1px solid #E2E9E5', borderRadius: 10, padding: '7px 12px', fontSize: 13, color: '#0A2820', background: '#fff', outline: 'none', width: '100%' }}
+      />
+      {/* Actions */}
+      <div style={{ display: 'flex', gap: 6 }}>
+        <button
+          onClick={handleSuggest} disabled={loadingSuggest}
+          title="Use AI suggestion"
+          style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '7px 10px', borderRadius: 10, border: `1px solid ${GOLD}`, background: '#FEF9EC', color: GOLD, fontSize: 12, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' }}
+        >
+          <Sparkles size={13} />
+          {loadingSuggest ? '…' : 'AI'}
+        </button>
+        <button
+          onClick={handleSave} disabled={mutation.isPending || !inputVal}
+          title="Save budget"
+          style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '7px 10px', borderRadius: 10, border: `1px solid ${FOREST}`, background: FOREST, color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}
+        >
+          <Save size={13} />
+          {mutation.isPending ? '…' : 'Save'}
+        </button>
+      </div>
+    </div>
+  )
+}
+
+function BudgetVsActual({ rows = [], budgetMonth }) {
+  const [key, setKey] = useState(0) // force re-render after save to clear inputs
+  if (!rows.length) return (
+    <Card className="p-5">
+      <p style={{ fontSize: 13, fontWeight: 600, color: '#0A2820', marginBottom: 6 }}>Budget vs Actual</p>
+      <p style={{ fontSize: 13, color: SAGE }}>No expense data in this period to set budgets for.</p>
+    </Card>
+  )
+  return (
+    <Card className="p-5">
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
+        <p style={{ fontSize: 13, fontWeight: 600, color: '#0A2820', margin: 0 }}>Budget vs Actual</p>
+        <p style={{ fontSize: 11, color: SAGE, margin: 0 }}>Budgets apply to the month of your selected end date</p>
+      </div>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 120px 120px 1fr auto', gap: 12, padding: '8px 0', borderBottom: '2px solid #E2E9E5' }}>
+        {['Category', 'Actual', 'Budget', 'Set / Edit Budget', ''].map(h => (
+          <p key={h} style={{ fontSize: 11, fontWeight: 600, color: SAGE, textTransform: 'uppercase', letterSpacing: '0.05em', margin: 0, textAlign: h === 'Actual' || h === 'Budget' ? 'right' : 'left' }}>{h}</p>
+        ))}
+      </div>
+      {rows.map(row => (
+        <BudgetRow key={`${row.category}-${key}`} row={row} budgetMonth={budgetMonth} onSaved={() => setKey(k => k + 1)} />
+      ))}
+    </Card>
   )
 }
 
@@ -347,15 +481,8 @@ export default function FinancialAnalyticsPage() {
             <PLTable kpis={kpis} expense_by_category={data.expense_by_category} />
           </Card>
 
-          {/* Budget vs actual — placeholder until model is added */}
-          <Card className="p-5" style={{ border: `1px dashed ${GOLD}` }}>
-            <p style={{ fontSize: 13, fontWeight: 600, color: '#0A2820', marginBottom: 6 }}>Budget vs Actual</p>
-            <p style={{ fontSize: 12, color: SAGE }}>
-              No budget model exists yet. To enable this chart, add an <code style={{ background: '#F4F7F5', padding: '1px 5px', borderRadius: 4 }}>ExpenseBudget</code> model with fields:
-              {' '}<code style={{ background: '#F4F7F5', padding: '1px 5px', borderRadius: 4 }}>business, category (FK), month (DateField), budgeted_amount (Decimal)</code>.
-              The analytics endpoint already returns <code style={{ background: '#F4F7F5', padding: '1px 5px', borderRadius: 4 }}>budget_vs_actual: []</code> ready to be populated.
-            </p>
-          </Card>
+          {/* Budget vs actual */}
+          <BudgetVsActual rows={data.budget_vs_actual} budgetMonth={dateTo} />
 
           {/* Recent transactions */}
           <Card className="p-5">
