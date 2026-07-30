@@ -44,7 +44,7 @@ export default function Sidebar() {
       <div style={{ padding: '22px 20px 18px', borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <img src={logo} alt="FinText" style={{
-            width: 34, height: 34, borderRadius: 9, objectFit: 'cover', flexShrink: 0,
+            width: 44, height: 44, borderRadius: 11, objectFit: 'cover', flexShrink: 0,
           }} />
           <div style={{ minWidth: 0 }}>
             <p style={{ fontSize: 13, fontWeight: 600, color: '#fff', lineHeight: 1.2, margin: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>

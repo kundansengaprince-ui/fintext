@@ -120,7 +120,7 @@ export function BrandLockup({ title, subtitle }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: 28 }}>
       <img src={logo} alt="FinText" style={{
-        width: 64, height: 64, borderRadius: 14, objectFit: 'cover',
+        width: 96, height: 96, borderRadius: 20, objectFit: 'cover',
         marginBottom: 18,
         boxShadow: '0 4px 20px rgba(0,0,0,0.3)',
       }} />
