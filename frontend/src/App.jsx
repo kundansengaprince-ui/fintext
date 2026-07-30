@@ -20,6 +20,7 @@ import MitchHubPage from './pages/MitchHubPage'
 import DailyEntryPage from './pages/DailyEntryPage'
 import POSPage from './pages/POSPage'
 import MenuPage from './pages/MenuPage'
+import FinancialAnalyticsPage from './pages/FinancialAnalyticsPage'
 import TransactionsPage from './pages/TransactionsPage'
 
 const qc = new QueryClient({
@@ -144,6 +145,13 @@ function AppRoutes() {
         <ProtectedRoute>
           <Layout>
             <TransactionsPage />
+          </Layout>
+        </ProtectedRoute>
+      } />
+      <Route path="/analytics" element={
+        <ProtectedRoute>
+          <Layout>
+            <FinancialAnalyticsPage />
           </Layout>
         </ProtectedRoute>
       } />

@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom'
-import { LayoutDashboard, TrendingUp, Receipt, Package, Users, UserCog, BarChart2, LogOut, ShieldCheck, ClipboardList, ShoppingCart, UtensilsCrossed, History } from 'lucide-react'
+import { LayoutDashboard, TrendingUp, Receipt, Package, Users, UserCog, BarChart2, LogOut, ShieldCheck, ClipboardList, ShoppingCart, UtensilsCrossed, History, LineChart } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 const logo = '/logo.png'
 
@@ -25,6 +25,7 @@ export default function Sidebar() {
     { to: '/inventory',    icon: Package,         label: 'Inventory',    show: can.viewInventory },
     { to: '/customers',    icon: Users,           label: 'Customers',    show: can.viewCustomers },
     { to: '/reports',      icon: BarChart2,       label: 'Reports',      show: can.viewReports },
+    { to: '/analytics',    icon: LineChart,       label: 'Analytics',    show: can.viewReports },
     { to: '/team',         icon: UserCog,         label: 'Team',         show: can.manageTeam },
     { to: '/audit',        icon: ShieldCheck,     label: 'Audit Log',    show: can.manageTeam },
   ].filter(item => item.show)

@@ -62,3 +62,6 @@ export const getLatestScore = () => api.get('/health-score/latest/')
 export const getScoreHistory = (days = 30) => api.get('/health-score/history/', { params: { days } })
 export const computeScore = (date) => api.post('/health-score/compute/', { date })
 export const compareModels = (date) => api.get('/health-score/compare/', { params: { date } })
+
+// Financial Analytics
+export const getFinancialAnalytics = (params) => api.get('/reports/analytics/', { params })
