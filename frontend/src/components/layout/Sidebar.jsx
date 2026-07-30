@@ -1,7 +1,7 @@
 import { NavLink } from 'react-router-dom'
 import { LayoutDashboard, TrendingUp, Receipt, Package, Users, UserCog, BarChart2, LogOut, ShieldCheck, ClipboardList, ShoppingCart, UtensilsCrossed, History } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
-import logo from '../../assets/IMG_2569.PNG'
+const logo = '/logo.png'
 
 const roleLabels = {
   MANAGER:         'Manager',
