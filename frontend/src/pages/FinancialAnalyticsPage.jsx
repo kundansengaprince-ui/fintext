@@ -144,6 +144,9 @@ function PLTable({ kpis, expense_by_category }) {
 
 // ── Recent transactions table ─────────────────────────────────────────────────
 function TransactionsTable({ rows = [] }) {
+  const [showAll, setShowAll] = useState(false)
+  const visible = showAll ? rows : rows.slice(0, 10)
+
   if (!rows.length) return <p style={{ color: SAGE, fontSize: 13, padding: '16px 0' }}>No transactions in this period.</p>
   return (
     <div style={{ overflowX: 'auto' }}>
@@ -156,7 +159,7 @@ function TransactionsTable({ rows = [] }) {
           </tr>
         </thead>
         <tbody>
-          {rows.map((r, i) => (
+          {visible.map((r, i) => (
             <tr key={i} style={{ borderTop: '1px solid #F0F4F2' }}>
               <td style={{ padding: '8px 12px', color: SAGE, whiteSpace: 'nowrap' }}>{r.date}</td>
               <td style={{ padding: '8px 12px', color: '#3D4F47', maxWidth: 220, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{r.description || '—'}</td>
@@ -171,6 +174,14 @@ function TransactionsTable({ rows = [] }) {
           ))}
         </tbody>
       </table>
+      {rows.length > 10 && (
+        <button
+          onClick={() => setShowAll(v => !v)}
+          style={{ marginTop: 12, width: '100%', padding: '9px', borderRadius: 10, border: '1px solid #E2E9E5', background: '#FAFBF9', color: SAGE, fontSize: 13, fontWeight: 500, cursor: 'pointer' }}
+        >
+          {showAll ? 'Show less' : `View ${rows.length - 10} more transactions`}
+        </button>
+      )}
     </div>
   )
 }
