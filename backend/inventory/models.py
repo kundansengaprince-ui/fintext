@@ -86,4 +86,4 @@ class InventoryRecord(models.Model):
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return f"{self.item.name} on {self.date} — closing: {self.closing_quantity} {self.item.unit}"
+        return f"{self.item.name} on {self.date} - closing: {self.closing_quantity} {self.item.unit}"

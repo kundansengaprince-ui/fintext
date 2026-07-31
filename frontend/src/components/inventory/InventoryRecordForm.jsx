@@ -68,7 +68,7 @@ export default function InventoryRecordForm({ existing, onDone }) {
       </div>
       <div className="bg-gray-50 rounded-xl p-3 text-sm flex items-center justify-between">
         <span className="text-gray-600">Calculated Closing Qty</span>
-        <span className="font-bold text-gray-900">{isNaN(closing) ? '—' : closing.toFixed(2)}</span>
+        <span className="font-bold text-gray-900">{isNaN(closing) ? '-' : closing.toFixed(2)}</span>
       </div>
       <div className="flex justify-end gap-3 pt-2">
         <Button type="button" variant="secondary" onClick={onDone}>Cancel</Button>

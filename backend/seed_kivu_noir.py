@@ -60,7 +60,7 @@ today = date.today()
 for i in range(30):
     d = today - timedelta(days=29 - i)
 
-    # Sales — café daily range 180k–420k RWF
+    # Sales - café daily range 180k–420k RWF
     is_weekend = d.weekday() >= 5
     base = rng.randint(280000, 420000) if is_weekend else rng.randint(180000, 320000)
     total = Decimal(base)

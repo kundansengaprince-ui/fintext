@@ -29,7 +29,7 @@ class SalesRecordListCreateView(generics.ListCreateAPIView):
         obj, _ = SalesRecord.objects.update_or_create(
             business=business, date=date, defaults=defaults
         )
-        log(self.request, AuditLog.Action.CREATE, 'Sales', obj.id, f'Sales record for {obj.date} — RWF {obj.total_sales}')
+        log(self.request, AuditLog.Action.CREATE, 'Sales', obj.id, f'Sales record for {obj.date} - RWF {obj.total_sales}')
         serializer.instance = obj
 
 

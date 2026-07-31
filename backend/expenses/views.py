@@ -37,7 +37,7 @@ class ExpenseReportListCreateView(generics.ListCreateAPIView):
 
     def perform_create(self, serializer):
         obj = serializer.save(created_by=self.request.user, business=self.request.user.business)
-        log(self.request, AuditLog.Action.CREATE, 'Expenses', obj.id, f'Expense {obj.category} — RWF {obj.amount} on {obj.date}')
+        log(self.request, AuditLog.Action.CREATE, 'Expenses', obj.id, f'Expense {obj.category} - RWF {obj.amount} on {obj.date}')
 
 
 class ExpenseReportDetailView(generics.RetrieveUpdateDestroyAPIView):

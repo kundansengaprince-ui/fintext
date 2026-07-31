@@ -46,7 +46,7 @@ class ClientRequest(models.Model):
         ordering = ['-created_at']
 
     def __str__(self):
-        return f"{self.business_name} — {self.contact_name} ({self.status})"
+        return f"{self.business_name} {self.contact_name} ({self.status})"
 
 
 class CustomUser(AbstractUser):

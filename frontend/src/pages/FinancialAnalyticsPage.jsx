@@ -13,7 +13,7 @@ import { TrendingUp, TrendingDown, DollarSign, Percent, Droplets, AlertTriangle,
 const today   = () => new Date().toISOString().split('T')[0]
 const daysAgo = (n) => new Date(Date.now() - n * 86400000).toISOString().split('T')[0]
 const fmtRWF  = (n) => `RWF ${Number(n ?? 0).toLocaleString('en-RW', { maximumFractionDigits: 0 })}`
-const fmtPct  = (n) => n != null ? `${Number(n).toFixed(1)}%` : '—'
+const fmtPct  = (n) => n != null ? `${Number(n).toFixed(1)}%` : '-'
 
 const FOREST = '#0E3B2E'
 const GOLD   = '#C9A15C'
@@ -72,19 +72,19 @@ function BiggestDragInsight({ data }) {
 
   let text, color
   if (draggingCat && draggingCat.mom_pct > 20) {
-    text = `⚠ Biggest drag: ${draggingCat.category} expenses grew ${draggingCat.mom_pct}% month-over-month — the fastest-growing cost in your business right now.`
+    text = `⚠ Biggest drag: ${draggingCat.category} expenses grew ${draggingCat.mom_pct}% month-over-month the fastest-growing cost in your business right now.`
     color = GOLD
   } else if (cashLow) {
-    text = `⚠ Cash runway is only ${kpis.runway_months} months at current burn rate — prioritise reducing expenses or increasing revenue immediately.`
+    text = `⚠ Cash runway is only ${kpis.runway_months} months at current burn rate prioritise reducing expenses or increasing revenue immediately.`
     color = RED
   } else if (marginDeclining) {
-    text = `Net margin declined from ${fmtPct(trend[trend.length - 2].net_margin)} to ${fmtPct(trend[trend.length - 1].net_margin)} last month — monitor expense growth closely.`
+    text = `Net margin declined from ${fmtPct(trend[trend.length - 2].net_margin)} to ${fmtPct(trend[trend.length - 1].net_margin)} last month monitor expense growth closely.`
     color = GOLD
   } else if (kpis.net_profit < 0) {
     text = `Your business is currently operating at a loss of ${fmtRWF(Math.abs(kpis.net_profit))} in this period. Review your largest expense categories below.`
     color = RED
   } else {
-    text = `✓ Business is profitable with a ${fmtPct(kpis.margin_pct)} net margin. ${draggingCat ? `Watch ${draggingCat.category} — it's your largest expense category.` : ''}`
+    text = `✓ Business is profitable with a ${fmtPct(kpis.margin_pct)} net margin. ${draggingCat ? `Watch ${draggingCat.category} it's your largest expense category.` : ''}`
     color = FOREST
   }
 
@@ -122,14 +122,14 @@ function PLTable({ kpis, expense_by_category }) {
               <td style={{ padding: '8px 12px 8px 24px', color: '#3D4F47' }}>{cat.category}</td>
               <td style={{ padding: '8px 12px', textAlign: 'right', color: RED }}>({fmtRWF(cat.amount)})</td>
               <td style={{ padding: '8px 12px', textAlign: 'right', color: SAGE }}>
-                {revenue ? fmtPct(cat.amount / revenue * 100) : '—'}
+                {revenue ? fmtPct(cat.amount / revenue * 100) : '-'}
               </td>
             </tr>
           ))}
           <tr style={{ borderTop: '2px solid #E2E9E5', background: 'rgba(14,59,46,0.03)' }}>
             <td style={{ padding: '9px 12px', fontWeight: 600, color: '#0A2820' }}>Total Expenses</td>
             <td style={{ padding: '9px 12px', textAlign: 'right', fontWeight: 600, color: RED }}>({fmtRWF(expenses)})</td>
-            <td style={{ padding: '9px 12px', textAlign: 'right', color: SAGE }}>{revenue ? fmtPct(expenses / revenue * 100) : '—'}</td>
+            <td style={{ padding: '9px 12px', textAlign: 'right', color: SAGE }}>{revenue ? fmtPct(expenses / revenue * 100) : '-'}</td>
           </tr>
           <tr style={{ borderTop: '2px solid #0E3B2E', background: 'rgba(14,59,46,0.06)' }}>
             <td style={{ padding: '10px 12px', fontWeight: 700, color: '#0A2820', fontFamily: "'Fraunces', serif" }}>Net Profit</td>
@@ -162,7 +162,7 @@ function TransactionsTable({ rows = [] }) {
           {visible.map((r, i) => (
             <tr key={i} style={{ borderTop: '1px solid #F0F4F2' }}>
               <td style={{ padding: '8px 12px', color: SAGE, whiteSpace: 'nowrap' }}>{r.date}</td>
-              <td style={{ padding: '8px 12px', color: '#3D4F47', maxWidth: 220, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{r.description || '—'}</td>
+              <td style={{ padding: '8px 12px', color: '#3D4F47', maxWidth: 220, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{r.description || '-'}</td>
               <td style={{ padding: '8px 12px', color: SAGE }}>{r.category}</td>
               <td style={{ padding: '8px 12px', textAlign: 'right', fontWeight: 500, color: r.type === 'income' ? FOREST : RED }}>{r.type === 'income' ? '+' : '-'}{fmtRWF(r.amount)}</td>
               <td style={{ padding: '8px 12px' }}>
@@ -211,7 +211,7 @@ function BudgetRow({ row, budgetMonth, onSaved }) {
         setInputVal(String(match.suggested_amount))
         toast.success(`AI suggestion loaded for ${row.category}`)
       } else {
-        toast('No history found — enter a budget manually.')
+        toast('No history found enter a budget manually.')
       }
     } catch {
       toast.error('Could not fetch suggestion.')
@@ -259,7 +259,7 @@ function BudgetRow({ row, budgetMonth, onSaved }) {
       <div style={{ textAlign: 'right' }}>
         <p style={{ fontSize: 11, color: SAGE, margin: '0 0 2px' }}>Budget</p>
         <p style={{ fontSize: 13, fontWeight: 600, color: row.budgeted_amount != null ? (overspend ? RED : FOREST) : SAGE, margin: 0 }}>
-          {row.budgeted_amount != null ? fmtRWF(row.budgeted_amount) : '—'}
+          {row.budgeted_amount != null ? fmtRWF(row.budgeted_amount) : '-'}
           {overspend && <span style={{ fontSize: 10, marginLeft: 4, color: RED }}>+{fmtPct((row.actual - row.budgeted_amount) / row.budgeted_amount * 100)} over</span>}
         </p>
       </div>
@@ -389,7 +389,7 @@ export default function FinancialAnalyticsPage() {
               value={kpis.runway_months != null ? `${kpis.runway_months} mo` : 'Profitable'}
               icon={Calendar}
               warn={kpis.runway_months != null && kpis.runway_months < 3}
-              sub={kpis.runway_months != null && kpis.runway_months < 3 ? 'Less than 3 months — act now' : kpis.runway_months != null ? 'At current burn rate' : 'No cash burn in last 3 months'}
+              sub={kpis.runway_months != null && kpis.runway_months < 3 ? 'Less than 3 months - act now' : kpis.runway_months != null ? 'At current burn rate' : 'No cash burn in last 3 months'}
             />
           </div>
 

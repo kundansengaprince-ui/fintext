@@ -52,7 +52,7 @@ class ComputeScoreView(APIView):
         except RuntimeError as e:
             return Response({'detail': str(e)}, status=500)
 
-        log(request, AuditLog.Action.COMPUTE, 'Dashboard', score.id, f'Computed health score for {target_date} — {score.score} ({score.label})')
+        log(request, AuditLog.Action.COMPUTE, 'Dashboard', score.id, f'Computed health score for {target_date} - {score.score} ({score.label})')
         return Response(BusinessHealthScoreSerializer(score).data)
 
 

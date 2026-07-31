@@ -140,7 +140,7 @@ CORS_ALLOWED_ORIGINS = config('CORS_ALLOWED_ORIGINS', default='http://localhost:
 CSRF_TRUSTED_ORIGINS = CORS_ALLOWED_ORIGINS
 CORS_ALLOW_CREDENTIALS = True
 
-# Email — password reset
+# Email - password reset
 EMAIL_BACKEND   = config('EMAIL_BACKEND', default='django.core.mail.backends.console.EmailBackend')
 EMAIL_HOST      = config('EMAIL_HOST', default='')
 EMAIL_PORT      = config('EMAIL_PORT', default=587, cast=int)

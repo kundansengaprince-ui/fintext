@@ -42,4 +42,4 @@ class CustomerRetentionRecord(models.Model):
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return f"{self.date} — {self.total_customers} customers ({self.retention_rate}% retention)"
+        return f"{self.date} - {self.total_customers} customers ({self.retention_rate}% retention)"

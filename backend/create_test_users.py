@@ -53,7 +53,7 @@ seed_business(
 
 print('\nAccounts ready:')
 print('  Kivu Noir   →  kivunoir / kivunoir123  (Manager)')
-print('  Kivu Noir   →  admin    / admin1234    (IT Admin) — run create_admin.py')
+print('  Kivu Noir   →  admin    / admin1234    (IT Admin) run create_admin.py')
 print('  Kivu Noir   →  cashier  / cashier123')
 print('  Kivu Noir   →  finance  / finance123')
 print('  Kivu Noir   →  waiter   / waiter123')

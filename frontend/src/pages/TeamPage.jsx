@@ -87,7 +87,7 @@ function MemberForm({ existing, onDone }) {
           <strong style={{ color: '#3D4F47' }}>Access: </strong>
           {{
             MANAGER:         'Full access to all modules, can compute health scores',
-            CASHIER:         'Sales module only — records daily transactions',
+            CASHIER:         'Sales module only - records daily transactions',
             FINANCE_OFFICER: 'Expenses (full) + Sales, Inventory, Customers (view only)',
             IT_ADMIN:        'Team management + dashboard and data (view only)',
             FLOOR_STAFF:     'Customer retention records only',
@@ -222,8 +222,8 @@ export default function TeamPage() {
 
                     {/* Contact */}
                     <div className="w-44 shrink-0 text-xs" style={{ color: '#7A9184' }}>
-                      <p className="truncate">{m.email || '—'}</p>
-                      <p>{m.phone || '—'}</p>
+                      <p className="truncate">{m.email || '-'}</p>
+                      <p>{m.phone || '-'}</p>
                     </div>
 
                     {/* Activity */}
@@ -264,7 +264,7 @@ export default function TeamPage() {
                   {isOpen && (
                     <div className="px-6 py-4" style={{ background: '#FAFBF9', borderTop: '1px solid #E2E9E5' }}>
                       <p className="text-xs font-semibold uppercase tracking-wide mb-2" style={{ color: '#7A9184' }}>Responsibilities</p>
-                      <p className="text-sm" style={{ color: '#3D4F47' }}>{m.responsibilities || '—'}</p>
+                      <p className="text-sm" style={{ color: '#3D4F47' }}>{m.responsibilities || '-'}</p>
                     </div>
                   )}
                 </div>

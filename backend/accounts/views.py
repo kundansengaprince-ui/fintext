@@ -98,7 +98,7 @@ class TeamDetailView(APIView):
 
 @method_decorator(never_cache, name='dispatch')
 class RegisterView(APIView):
-    """Disabled — businesses are onboarded manually by Fintext admins."""
+    """Disabled businesses are onboarded manually by Fintext admins."""
     permission_classes = [AllowAny]
 
     def post(self, request):
@@ -146,7 +146,7 @@ class CheckUsernameView(APIView):
 @method_decorator(ratelimit(key='ip', rate='5/h', method='POST', block=True), name='post')
 class ForgotPasswordView(APIView):
     """
-    POST { email } — sends a reset link if the email exists.
+    POST { email } sends a reset link if the email exists.
     Always returns 200 so we don't leak whether an email is registered.
     """
     permission_classes = [AllowAny]
@@ -166,7 +166,7 @@ class ForgotPasswordView(APIView):
                 token = default_token_generator.make_token(user)
                 reset_url = f"{settings.FRONTEND_URL}/reset-password/{uid}/{token}/"
                 send_mail(
-                    subject='Reset your password — Business Health Dashboard',
+                    subject='Reset your password Business Health Dashboard',
                     message=(
                         f"Hi {user.first_name or user.username},\n\n"
                         f"Click the link below to reset your password. "
@@ -179,14 +179,14 @@ class ForgotPasswordView(APIView):
                     fail_silently=True,
                 )
             except CustomUser.DoesNotExist:
-                pass  # silent — don't reveal if email exists
+                pass  # silent - don't reveal if email exists
 
         return Response({'detail': 'If that email is registered, a reset link has been sent.'})
 
 
 class ResetPasswordView(APIView):
     """
-    POST { uid, token, password } — validates token and sets new password.
+    POST { uid, token, password } validates token and sets new password.
     """
     permission_classes = [AllowAny]
 
@@ -228,7 +228,7 @@ class ResetPasswordView(APIView):
 
 @method_decorator(ratelimit(key='ip', rate='10/h', method='POST', block=True), name='post')
 class ClientRequestView(APIView):
-    """Public endpoint — businesses submit their info to get onboarded."""
+    """Public endpoint businesses submit their info to get onboarded."""
     permission_classes = [AllowAny]
 
     def post(self, request):

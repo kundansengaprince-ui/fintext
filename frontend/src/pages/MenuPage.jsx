@@ -120,7 +120,7 @@ export default function MenuPage() {
                       </span>
                     </td>
                     <td className="px-4 py-3 text-right font-semibold text-gray-900">RWF {fmt(item.price)}</td>
-                    <td className="px-4 py-3 text-gray-500">{item.inventory_item_name ?? '—'}</td>
+                    <td className="px-4 py-3 text-gray-500">{item.inventory_item_name ?? '-'}</td>
                     <td className="px-4 py-3 text-center text-gray-500">{item.inventory_qty_per_sale}</td>
                     <td className="px-4 py-3 text-center">
                       <button onClick={() => toggle.mutate(item)} className="text-gray-400 hover:text-indigo-600 transition-colors">

@@ -26,7 +26,7 @@ function StatCard({ icon: Icon, label, value, color }) {
         <Icon size={22} />
       </div>
       <div>
-        <p className="text-2xl font-bold text-white">{value ?? '—'}</p>
+        <p className="text-2xl font-bold text-white">{value ?? '-'}</p>
         <p className="text-gray-400 text-sm">{label}</p>
       </div>
     </div>
@@ -137,8 +137,8 @@ export default function DashboardPage() {
                         {c.business_type}
                       </span>
                     </td>
-                    <td className="px-5 py-3 text-gray-300 text-xs">{c.manager || '—'}</td>
-                    <td className="px-5 py-3 text-gray-400">{c.location || '—'}</td>
+                    <td className="px-5 py-3 text-gray-300 text-xs">{c.manager || '-'}</td>
+                    <td className="px-5 py-3 text-gray-400">{c.location || '-'}</td>
                     <td className="px-5 py-3 text-gray-300">{c.user_count}</td>
                     <td className="px-5 py-3">
                       <span className={`text-xs px-2 py-1 rounded-lg border ${c.is_active ? 'bg-green-500/20 text-green-400 border-green-500/30' : 'bg-red-500/20 text-red-400 border-red-500/30'}`}>
@@ -180,7 +180,7 @@ export default function DashboardPage() {
                     </td>
                     <td className="px-5 py-3 text-gray-300">{r.contact_name}</td>
                     <td className="px-5 py-3 text-gray-400">{r.email}</td>
-                    <td className="px-5 py-3 text-gray-400">{r.location || '—'}</td>
+                    <td className="px-5 py-3 text-gray-400">{r.location || '-'}</td>
                     <td className="px-5 py-3">
                       <span className={`text-xs px-2 py-1 rounded-lg border ${STATUS_COLORS[r.status]}`}>
                         {r.status}
@@ -229,8 +229,8 @@ export default function DashboardPage() {
               ['Type',     selected.business_type],
               ['Contact',  selected.contact_name],
               ['Email',    selected.email],
-              ['Phone',    selected.phone || '—'],
-              ['Location', selected.location || '—'],
+              ['Phone',    selected.phone || '-'],
+              ['Location', selected.location || '-'],
               ['Status',   selected.status],
               ['Date',     new Date(selected.created_at).toLocaleString()],
             ].map(([k, v]) => (

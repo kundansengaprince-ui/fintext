@@ -10,26 +10,26 @@ const FOREST = '#0E3B2E'
 // ── Floating ambient icons ────────────────────────────────────────────────────
 function FloatingIcons() {
   const icons = [
-    // Coin — top left
+    // Coin - top left
     { x: '5%', y: '10%', delay: 0, dur: 24, anim: 'A',
       svg: <svg width="60" height="60" viewBox="0 0 60 60" fill="none">
         <circle cx="30" cy="30" r="26" stroke={GOLD} strokeWidth="1.3"/>
         <circle cx="30" cy="30" r="18" stroke={GOLD} strokeWidth="1.3"/>
         <text x="30" y="36" textAnchor="middle" fontSize="15" fill={GOLD} fontFamily="serif">$</text>
       </svg> },
-    // Trend line — top right
+    // Trend line - top right
     { x: '80%', y: '7%', delay: 5, dur: 28, anim: 'B',
       svg: <svg width="80" height="48" viewBox="0 0 80 48" fill="none">
         <polyline points="4,42 20,28 36,34 52,16 76,6" stroke={GOLD} strokeWidth="1.3" strokeLinejoin="round"/>
         {[4,20,36,52,76].map((cx,i) => <circle key={i} cx={cx} cy={[42,28,34,16,6][i]} r="2.5" stroke={GOLD} strokeWidth="1.3"/>)}
       </svg> },
-    // Ledger — bottom left
+    // Ledger - bottom left
     { x: '3%', y: '70%', delay: 9, dur: 22, anim: 'C',
       svg: <svg width="46" height="58" viewBox="0 0 46 58" fill="none">
         <rect x="3" y="3" width="40" height="52" rx="4" stroke={SAGE} strokeWidth="1.3"/>
         {[16,24,32,40].map((y,i) => <line key={i} x1="11" y1={y} x2={i < 2 ? 35 : i === 2 ? 28 : 22} y2={y} stroke={SAGE} strokeWidth="1.3"/>)}
       </svg> },
-    // Bar chart — bottom right
+    // Bar chart - bottom right
     { x: '85%', y: '68%', delay: 14, dur: 26, anim: 'A',
       svg: <svg width="62" height="54" viewBox="0 0 62 54" fill="none">
         <rect x="3"  y="30" width="11" height="20" rx="2" stroke={SAGE} strokeWidth="1.3"/>
@@ -37,7 +37,7 @@ function FloatingIcons() {
         <rect x="33" y="8"  width="11" height="42" rx="2" stroke={GOLD} strokeWidth="1.3"/>
         <rect x="48" y="22" width="9"  height="28" rx="2" stroke={SAGE} strokeWidth="1.3"/>
       </svg> },
-    // Progress ring — mid left
+    // Progress ring - mid left
     { x: '1%', y: '42%', delay: 3, dur: 30, anim: 'B',
       svg: <svg width="50" height="50" viewBox="0 0 50 50" fill="none">
         <circle cx="25" cy="25" r="21" stroke={SAGE} strokeWidth="1.3"/>
@@ -46,7 +46,7 @@ function FloatingIcons() {
         <line x1="25" y1="25" x2="37" y2="31" stroke={SAGE} strokeWidth="1.3" strokeLinecap="round"/>
         <circle cx="25" cy="25" r="2" fill={SAGE}/>
       </svg> },
-    // Growth path — bottom center
+    // Growth path - bottom center
     { x: '58%', y: '80%', delay: 18, dur: 25, anim: 'C',
       svg: <svg width="70" height="38" viewBox="0 0 70 38" fill="none">
         <path d="M3 34 C14 34 14 18 26 18 C38 18 38 6 50 6 C58 6 62 10 66 6" stroke={GOLD} strokeWidth="1.3" strokeLinecap="round"/>

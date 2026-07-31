@@ -70,7 +70,7 @@ class BusinessHealthScore(models.Model):
         return self.ScoreLabel.CRITICAL
 
     def __str__(self):
-        return f"{self.date} — Score: {self.score} ({self.label})"
+        return f"{self.date} - Score: {self.score} ({self.label})"
 
 
 class MLModelLog(models.Model):
@@ -89,4 +89,4 @@ class MLModelLog(models.Model):
         verbose_name_plural = 'ML Model Logs'
 
     def __str__(self):
-        return f"Model {self.version} — R²: {self.r2_score} (active: {self.is_active})"
+        return f"Model {self.version} - R²: {self.r2_score} (active: {self.is_active})"

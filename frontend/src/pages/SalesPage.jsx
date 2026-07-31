@@ -128,14 +128,14 @@ export default function SalesPage() {
                       <td className="px-4 py-3 text-right font-semibold"
                         style={{ fontFamily: "'IBM Plex Mono', monospace", color: '#0A2820' }}>RWF {fmt(r.total_sales)}</td>
                       <td className="px-4 py-3 text-right" style={{ color: '#7A9184' }}>
-                        {r.food_sales ? `RWF ${fmt(r.food_sales)}` : '—'}
+                        {r.food_sales ? `RWF ${fmt(r.food_sales)}` : '-'}
                       </td>
                       <td className="px-4 py-3 text-right" style={{ color: '#7A9184' }}>
-                        {r.beverage_sales ? `RWF ${fmt(r.beverage_sales)}` : '—'}
+                        {r.beverage_sales ? `RWF ${fmt(r.beverage_sales)}` : '-'}
                       </td>
-                      <td className="px-4 py-3 text-right" style={{ color: '#7A9184' }}>{r.num_transactions ?? '—'}</td>
+                      <td className="px-4 py-3 text-right" style={{ color: '#7A9184' }}>{r.num_transactions ?? '-'}</td>
                       <td className="px-4 py-3 text-right" style={{ color: '#7A9184' }}>
-                        {r.avg_transaction_value ? `RWF ${fmt(parseFloat(r.avg_transaction_value).toFixed(0))}` : '—'}
+                        {r.avg_transaction_value ? `RWF ${fmt(parseFloat(r.avg_transaction_value).toFixed(0))}` : '-'}
                       </td>
                       {can.editSales && (
                         <td className="px-4 py-3">

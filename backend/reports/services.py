@@ -10,7 +10,7 @@ def suggest_budget(business, category, target_month: date) -> float | None:
     Returns a suggested budget amount for a given business + category + month.
     Uses the average actual spend over the last 3 completed months + 10% buffer.
     Falls back to fewer months if history is limited. Returns None if no history.
-    Does NOT save anything — caller must confirm and POST to create ExpenseBudget.
+    Does NOT save anything - caller must confirm and POST to create ExpenseBudget.
     """
     # target_month should be first-of-month; look back from the month before it
     month_start = target_month.replace(day=1)

@@ -44,4 +44,4 @@ class ExpenseReport(models.Model):
         verbose_name_plural = 'Expense Reports'
 
     def __str__(self):
-        return f"{self.category} — RWF {self.amount:,.0f} on {self.date}"
+        return f"{self.category} - RWF {self.amount:,.0f} on {self.date}"

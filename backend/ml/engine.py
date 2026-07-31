@@ -279,21 +279,21 @@ def _build_rec_content(feature, val, target, pct_off, unit, is_bad, urgency):
 
     if feature == 'gross_profit_margin':
         if is_bad:
-            title = f'Gross margin at {val:.1f}% — target is {target}%'
+            title = f'Gross margin at {val:.1f}% - target is {target}%'
             body = (
                 f'You are {pct_off}% below the healthy benchmark of {target}%. '
                 f'After food and beverage costs, too little revenue remains to cover overheads. '
                 f'Even a small price increase on your top 5 dishes can recover this quickly.'
             )
             actions = [
-                f'Increase prices on your 3 best-selling dishes by 8–12% — test for 2 weeks',
+                f'Increase prices on your 3 best-selling dishes by 8–12% - test for 2 weeks',
                 'Calculate cost-per-plate for your full menu and cut the 2 lowest-margin items',
                 'Negotiate a bulk deal with your main ingredient supplier (aim for 10% off)',
                 'Reduce portion sizes on high-cost ingredients by 5–8% without changing presentation',
             ]
         else:
             title = f'Gross margin strong at {val:.1f}%'
-            body = f'You are {pct_off}% above the {target}% benchmark — excellent cost discipline on food and beverages.'
+            body = f'You are {pct_off}% above the {target}% benchmark - excellent cost discipline on food and beverages.'
             actions = [
                 'Introduce 2–3 premium menu items to push margin even higher',
                 'Lock in current supplier prices with a 3-month contract before costs rise',
@@ -301,14 +301,14 @@ def _build_rec_content(feature, val, target, pct_off, unit, is_bad, urgency):
 
     elif feature == 'expense_to_revenue_ratio':
         if is_bad:
-            title = f'Expenses at {val:.1f}% of revenue — should be under {target}%'
+            title = f'Expenses at {val:.1f}% of revenue - should be under {target}%'
             body = (
-                f'For every 100 RWF you earn, {val:.0f} RWF goes to expenses — that is {pct_off}% above the safe threshold. '
+                f'For every 100 RWF you earn, {val:.0f} RWF goes to expenses - that is {pct_off}% above the safe threshold. '
                 f'At this rate, profitability is under serious pressure. '
                 f'Staff costs and supplier invoices are typically the fastest wins.'
             )
             actions = [
-                f'Audit your top 3 expense categories this week — identify anything above 15% of revenue',
+                f'Audit your top 3 expense categories this week - identify anything above 15% of revenue',
                 'Reduce staff hours during off-peak times (typically 14:00–17:00 on weekdays)',
                 'Switch 2 high-cost ingredients to local Rwandan alternatives',
                 'Pause any non-essential subscriptions or services for 30 days',
@@ -323,43 +323,43 @@ def _build_rec_content(feature, val, target, pct_off, unit, is_bad, urgency):
 
     elif feature == 'customer_retention_rate':
         if is_bad:
-            title = f'Only {val:.0f}% of customers return — target is {target}%'
+            title = f'Only {val:.0f}% of customers return - target is {target}%'
             body = (
-                f'You are retaining {val:.0f}% of customers against a {target}% benchmark — a gap of {pct_off}%. '
+                f'You are retaining {val:.0f}% of customers against a {target}% benchmark - a gap of {pct_off}%. '
                 f'Acquiring a new customer costs 5x more than keeping one. '
                 f'Even moving from {val:.0f}% to {min(val+15, target):.0f}% retention would significantly boost monthly revenue.'
             )
             actions = [
-                'Start a simple stamp-card loyalty programme — 10 visits = 1 free item',
+                'Start a simple stamp-card loyalty programme - 10 visits = 1 free item',
                 'Train every staff member to greet returning customers by name',
                 'Send a WhatsApp follow-up to customers 3 days after their visit',
                 f'Offer a 10% discount on the next visit for anyone who has not returned in 14 days',
             ]
         else:
             title = f'Strong retention at {val:.0f}%'
-            body = f'Customers are coming back — {val:.0f}% retention is {pct_off}% above the {target}% benchmark.'
+            body = f'Customers are coming back - {val:.0f}% retention is {pct_off}% above the {target}% benchmark.'
             actions = [
                 'Ask your top 20% most loyal customers for a Google review this week',
-                'Launch a referral programme — existing customers bring a friend, both get a discount',
+                'Launch a referral programme - existing customers bring a friend, both get a discount',
             ]
 
     elif feature == 'inventory_turnover_rate':
         if is_bad:
-            title = f'Inventory turning {val:.1f}x — target is {target}x'
+            title = f'Inventory turning {val:.1f}x - target is {target}x'
             body = (
-                f'Stock is turning over {val:.1f} times against a target of {target}x — {pct_off} turns below benchmark. '
+                f'Stock is turning over {val:.1f} times against a target of {target}x - {pct_off} turns below benchmark. '
                 f'Slow turnover means cash is locked in stock and spoilage risk is high. '
                 f'In a Kigali restaurant, perishables sitting more than 3 days are a direct cost.'
             )
             actions = [
-                'Order perishables every 3 days instead of weekly — smaller, fresher batches',
+                'Order perishables every 3 days instead of weekly - smaller, fresher batches',
                 'Identify your 5 slowest-moving items and run a daily special to clear them',
-                'Implement FIFO strictly — label every delivery with arrival date',
+                'Implement FIFO strictly - label every delivery with arrival date',
                 'Do a daily 5-minute stock count on your top 10 perishable items',
             ]
         else:
             title = f'Inventory turning efficiently at {val:.1f}x'
-            body = f'Stock is moving at {val:.1f}x, {pct_off} turns above the {target}x benchmark — waste is minimal.'
+            body = f'Stock is moving at {val:.1f}x, {pct_off} turns above the {target}x benchmark - waste is minimal.'
             actions = [
                 'Update reorder points as you enter a new season to avoid stockouts',
                 'Monitor for sudden drops in turnover that could signal a slow-selling new item',
@@ -369,21 +369,21 @@ def _build_rec_content(feature, val, target, pct_off, unit, is_bad, urgency):
         sales_rwf = val * 1_000_000
         target_rwf = target * 1_000_000
         if is_bad:
-            title = f'Daily sales at {sales_rwf/1000:.0f}K RWF — target is {target_rwf/1000:.0f}K RWF'
+            title = f'Daily sales at {sales_rwf/1000:.0f}K RWF - target is {target_rwf/1000:.0f}K RWF'
             body = (
                 f'Revenue is {pct_off * 1_000_000 / 1000:.0f}K RWF below the daily benchmark. '
                 f'This could be a footfall issue, a slow-period problem, or a missed upsell opportunity. '
-                f'Each of these has a different fix — start by identifying your peak vs off-peak hours.'
+                f'Each of these has a different fix - start by identifying your peak vs off-peak hours.'
             )
             actions = [
                 'Run a lunch special (12:00–14:00) at 15% off to drive midday footfall',
-                'Train staff to suggest one upsell per table — a drink, starter, or dessert',
+                'Train staff to suggest one upsell per table - a drink, starter, or dessert',
                 'Post on Instagram/WhatsApp status every morning with today\'s special',
-                'Review your opening hours — are you open during Kigali\'s peak dining windows?',
+                'Review your opening hours - are you open during Kigali\'s peak dining windows?',
             ]
         else:
             title = f'Sales strong at {sales_rwf/1000:.0f}K RWF/day'
-            body = f'Daily revenue is {pct_off * 1_000_000 / 1000:.0f}K RWF above the benchmark — operations are generating solid volume.'
+            body = f'Daily revenue is {pct_off * 1_000_000 / 1000:.0f}K RWF above the benchmark - operations are generating solid volume.'
             actions = [
                 'Ensure kitchen capacity can sustain this volume without quality dropping',
                 'Analyse your top-selling hours and make sure you are fully staffed then',

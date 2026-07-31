@@ -53,7 +53,7 @@ class TransactionListCreateView(generics.ListCreateAPIView):
             business=self.request.user.business,
             created_by=self.request.user,
         )
-        log(self.request, AuditLog.Action.CREATE, 'POS', obj.id, f'Transaction #{obj.id} — RWF {obj.total}')
+        log(self.request, AuditLog.Action.CREATE, 'POS', obj.id, f'Transaction #{obj.id} - RWF {obj.total}')
 
 
 class TransactionDetailView(generics.RetrieveUpdateAPIView):

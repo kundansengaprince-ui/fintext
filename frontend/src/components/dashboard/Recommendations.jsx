@@ -4,7 +4,7 @@ import { TrendingUp, TrendingDown, AlertTriangle, CheckCircle, ChevronDown, Chev
 export const fmtVal = (n, unit = '') => {
   const cleanUnit = unit.replace('/month', '')
   const num = parseFloat(n)
-  if (isNaN(num)) return '—'
+  if (isNaN(num)) return '-'
   return `${num.toFixed(1)}${cleanUnit}`
 }
 
@@ -254,7 +254,7 @@ export default function Recommendations({ recommendations = [], highlightFeature
         <div>
           <h2 style={{ fontSize: 16, fontWeight: 700, color: '#1A2420', margin: '0 0 2px 0' }}>AI Recommendations</h2>
           <p style={{ fontSize: 12, color: SAGE_LIGHT, margin: 0 }}>
-            Powered by ML - ranked by impact on your health score
+            Powered by ML ranked by impact on your health score
           </p>
         </div>
         {urgent.length > 0 && (

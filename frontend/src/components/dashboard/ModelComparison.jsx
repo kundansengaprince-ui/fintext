@@ -3,7 +3,7 @@ import { compareModels } from '../../api'
 import Card from '../ui/Card'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts'
 
-// All three models map to forest-family — differentiated by opacity/shade only
+// All three models map to forest-family - differentiated by opacity/shade only
 const MODEL_COLORS = {
   'XGBoost':           '#0E3B2E',
   'Random Forest':     '#164C3B',
@@ -44,7 +44,7 @@ export default function ModelComparison({ date }) {
       <div className="mb-5">
         <h2 className="text-sm font-semibold" style={{ color: '#3D4F47' }}>Model Comparison</h2>
         <p className="text-xs mt-0.5" style={{ color: '#B7C4BC' }}>
-          Same KPIs scored by three different ML models — for date: {data.date}
+          Same KPIs scored by three different ML models for date: {data.date}
         </p>
       </div>
 

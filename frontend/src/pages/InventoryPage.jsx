@@ -70,20 +70,20 @@ export default function InventoryPage() {
         {can.editInventory && <Button onClick={openAdd}><Plus size={15} /> Add Record</Button>}
       </div>
 
-      {/* Low stock alert banner — gold accent */}
+      {/* Low stock alert banner - gold accent */}
       {lowStock.length > 0 && (
         <div className="rounded-2xl p-4" style={{ background: '#F1E6D0', borderLeft: '3px solid #C9A15C' }}>
           <div className="flex items-start gap-3">
             <AlertTriangle size={18} style={{ color: '#C9A15C', flexShrink: 0, marginTop: 2 }} />
             <div>
               <p className="text-sm font-bold" style={{ color: '#8A6A2E' }}>
-                Low Stock Alert — {lowStock.length} item{lowStock.length > 1 ? 's' : ''} need restocking
+                Low Stock Alert - {lowStock.length} item{lowStock.length > 1 ? 's' : ''} need restocking
               </p>
               <div className="flex flex-wrap gap-2 mt-2">
                 {lowStock.map(item => (
                   <span key={item.id} className="inline-flex items-center gap-1 text-xs font-medium px-2.5 py-1 rounded-full"
                     style={{ background: 'rgba(201,161,92,0.15)', color: '#8A6A2E', border: '1px solid rgba(201,161,92,0.3)' }}>
-                    {item.name} — {item.closing_quantity} {item.unit} left (reorder at {item.reorder_level})
+                    {item.name} - {item.closing_quantity} {item.unit} left (reorder at {item.reorder_level})
                   </span>
                 ))}
               </div>

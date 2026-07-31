@@ -59,7 +59,7 @@ class TransactionSerializer(serializers.ModelSerializer):
                 subtotal=subtotal,
             )
 
-            # Decrement inventory — create today's record if it doesn't exist yet
+            # Decrement inventory - create today's record if it doesn't exist yet
             if menu_item.inventory_item:
                 inv_item = menu_item.inventory_item
                 consumed = menu_item.inventory_qty_per_sale * qty

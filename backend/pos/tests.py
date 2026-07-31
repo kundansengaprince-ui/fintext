@@ -157,7 +157,7 @@ class TransactionCreateTest(TestCase):
         self.assertEqual(float(rec.quantity_used), 2.0)
 
     def test_inventory_record_auto_created_when_missing(self):
-        # No inventory record for today — should be created automatically
+        # No inventory record for today - should be created automatically
         self.cash_c.post(TXN_URL, self._payload(), format='json')
         self.assertTrue(
             InventoryRecord.objects.filter(business=self.biz, item=self.inv_item, date=date.today()).exists()

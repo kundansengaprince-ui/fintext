@@ -146,7 +146,7 @@ class FullReportView(APIView):
         resp = _csv_response(f'full_report_{d_from}_{d_to}.csv')
         w = csv.writer(resp)
 
-        w.writerow([f'{business.name} — Full Business Report', f'{d_from} to {d_to}'])
+        w.writerow([f'{business.name} - Full Business Report', f'{d_from} to {d_to}'])
         w.writerow([])
 
         w.writerow(['=== SALES ==='])
@@ -284,7 +284,7 @@ class FinancialAnalyticsView(APIView):
         )
 
         exp_map = {r['month']: float(r['expenses']) for r in monthly_expenses}
-        running_cash = cash_balance  # approximate — walk backwards not needed for trend shape
+        running_cash = cash_balance  # approximate - walk backwards not needed for trend shape
         trend_rows = []
         for row in monthly_sales:
             m     = row['month']
@@ -416,8 +416,8 @@ class BudgetSuggestionsView(APIView):
 
 class BudgetView(APIView):
     """
-    GET  /api/reports/budgets/?month=YYYY-MM-DD  — list saved budgets for month
-    POST /api/reports/budgets/                   — create or update a budget row
+    GET  /api/reports/budgets/?month=YYYY-MM-DD  - list saved budgets for month
+    POST /api/reports/budgets/                   - create or update a budget row
     """
     permission_classes = [DashboardPermission]
 

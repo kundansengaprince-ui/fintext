@@ -147,7 +147,7 @@ export default function CustomersPage() {
                           {parseFloat(r.retention_rate).toFixed(1)}%
                         </span>
                       </td>
-                      <td className="px-4 py-3 max-w-xs truncate" style={{ color: '#B7C4BC' }}>{r.notes || '—'}</td>
+                      <td className="px-4 py-3 max-w-xs truncate" style={{ color: '#B7C4BC' }}>{r.notes || '-'}</td>
                       {can.editCustomers && (
                         <td className="px-4 py-3">
                           <div className="flex items-center justify-end gap-2">

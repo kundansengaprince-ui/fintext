@@ -1,30 +1,30 @@
 import { TrendingUp, Receipt, Users, Package } from 'lucide-react'
 import Card from '../ui/Card'
 
-const fmt = (n) => n != null ? parseFloat(n).toFixed(1) : '—'
+const fmt = (n) => n != null ? parseFloat(n).toFixed(1) : '-'
 
 const kpis = (score) => [
   {
     label: 'Gross Profit Margin',
-    value: score?.gross_profit_margin != null ? `${fmt(score.gross_profit_margin)}%` : '—',
+    value: score?.gross_profit_margin != null ? `${fmt(score.gross_profit_margin)}%` : '-',
     icon: TrendingUp,
     good: parseFloat(score?.gross_profit_margin) >= 45,
   },
   {
     label: 'Expense-to-Revenue',
-    value: score?.expense_to_revenue_ratio != null ? `${fmt(score.expense_to_revenue_ratio)}%` : '—',
+    value: score?.expense_to_revenue_ratio != null ? `${fmt(score.expense_to_revenue_ratio)}%` : '-',
     icon: Receipt,
     good: parseFloat(score?.expense_to_revenue_ratio) <= 75,
   },
   {
     label: 'Customer Retention',
-    value: score?.customer_retention_rate != null ? `${fmt(score.customer_retention_rate)}%` : '—',
+    value: score?.customer_retention_rate != null ? `${fmt(score.customer_retention_rate)}%` : '-',
     icon: Users,
     good: parseFloat(score?.customer_retention_rate) >= 40,
   },
   {
     label: 'Inventory Turnover',
-    value: score?.inventory_turnover_rate != null ? `${fmt(score.inventory_turnover_rate)}x` : '—',
+    value: score?.inventory_turnover_rate != null ? `${fmt(score.inventory_turnover_rate)}x` : '-',
     icon: Package,
     good: parseFloat(score?.inventory_turnover_rate) >= 2.5,
   },

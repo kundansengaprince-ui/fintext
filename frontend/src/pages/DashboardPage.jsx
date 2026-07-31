@@ -38,16 +38,16 @@ function ExecutiveSummary({ score, topRec }) {
 
   let text, borderColor, bg, color
   if (profitable && topRec?.urgency === 'high') {
-    text = `Your business is profitable but losing money to ${feature.toLowerCase()} — fixing this is your #1 lever this month.`
+    text = `Your business is profitable but losing money to ${feature.toLowerCase()} - fixing this is your #1 lever this month.`
     bg = '#F1E6D0'; borderColor = '#C9A15C'; color = '#8A6A2E'
   } else if (profitable) {
-    text = `Your business is profitable and healthy — keep monitoring ${feature ?? 'your key metrics'} to stay on track.`
+    text = `Your business is profitable and healthy keep monitoring ${feature ?? 'your key metrics'} to stay on track.`
     bg = 'rgba(14,59,46,0.06)'; borderColor = 'rgba(14,59,46,0.2)'; color = '#0E3B2E'
   } else if (topRec?.urgency === 'high') {
-    text = `Your business is currently operating at a loss, largely driven by ${feature.toLowerCase()} — this needs immediate attention.`
+    text = `Your business is currently operating at a loss, largely driven by ${feature.toLowerCase()} this needs immediate attention.`
     bg = '#F1E6D0'; borderColor = '#C9A15C'; color = '#8A6A2E'
   } else {
-    text = `Your business is currently operating at a loss — review your Reports page for a full breakdown.`
+    text = `Your business is currently operating at a loss review your Reports page for a full breakdown.`
     bg = '#FAFBF9'; borderColor = '#E2E9E5'; color = '#7A9184'
   }
 
@@ -112,7 +112,7 @@ export default function DashboardPage() {
       toast.success('Health score computed successfully.')
     },
     onError: (err) => {
-      const msg = err.response?.data?.error ?? 'Could not compute score - make sure data exists for this date.'
+      const msg = err.response?.data?.error ?? 'Could not compute score make sure data exists for this date.'
       toast.error(msg)
     },
   })

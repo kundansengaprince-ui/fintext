@@ -26,7 +26,7 @@ class CustomerRetentionRecordAdmin(admin.ModelAdmin):
 
     def retention_badge(self, obj):
         if obj.retention_rate is None:
-            return '—'
+            return '-'
         rate = float(obj.retention_rate)
         if rate >= 60:
             color = 'green'

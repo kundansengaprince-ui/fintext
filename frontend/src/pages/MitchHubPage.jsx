@@ -122,8 +122,8 @@ export default function MitchHubPage() {
                         {c.business_type}
                       </span>
                     </td>
-                    <td className="px-5 py-3 text-gray-300">{c.manager || '—'}</td>
-                    <td className="px-5 py-3 text-gray-400">{c.location || '—'}</td>
+                    <td className="px-5 py-3 text-gray-300">{c.manager || '-'}</td>
+                    <td className="px-5 py-3 text-gray-400">{c.location || '-'}</td>
                     <td className="px-5 py-3 text-gray-300">{c.user_count}</td>
                     <td className="px-5 py-3">
                       <span className={`text-xs px-2 py-1 rounded-lg border ${c.is_active ? 'bg-green-500/20 text-green-400 border-green-500/30' : 'bg-red-500/20 text-red-400 border-red-500/30'}`}>
@@ -165,7 +165,7 @@ export default function MitchHubPage() {
                     </td>
                     <td className="px-5 py-3 text-gray-300">{r.contact_name}</td>
                     <td className="px-5 py-3 text-gray-400">{r.email}</td>
-                    <td className="px-5 py-3 text-gray-400">{r.location || '—'}</td>
+                    <td className="px-5 py-3 text-gray-400">{r.location || '-'}</td>
                     <td className="px-5 py-3">
                       <span className={`text-xs px-2 py-1 rounded-lg border ${STATUS_COLORS[r.status]}`}>
                         {r.status}
@@ -214,8 +214,8 @@ export default function MitchHubPage() {
               ['Type',     selectedRequest.business_type],
               ['Contact',  selectedRequest.contact_name],
               ['Email',    selectedRequest.email],
-              ['Phone',    selectedRequest.phone || '—'],
-              ['Location', selectedRequest.location || '—'],
+              ['Phone',    selectedRequest.phone || '-'],
+              ['Location', selectedRequest.location || '-'],
               ['Status',   selectedRequest.status],
               ['Date',     new Date(selectedRequest.created_at).toLocaleString()],
             ].map(([k, v]) => (

@@ -23,11 +23,11 @@ def _suggest_usernames(base):
     return available[:5]
 
 ROLE_RESPONSIBILITIES = {
-    'MANAGER':         'Full access — dashboard, all data entry, team management, score computation',
-    'CASHIER':         'Sales entry — records daily transactions at the till',
-    'FINANCE_OFFICER': 'Financial oversight — approves and logs all expense records',
-    'IT_ADMIN':        'System management — manages staff accounts and system access',
-    'FLOOR_STAFF':     'Customer tracking — records daily customer headcounts',
+    'MANAGER':         'Full access dashboard, all data entry, team management, score computation',
+    'CASHIER':         'Sales entry records daily transactions at the till',
+    'FINANCE_OFFICER': 'Financial oversight approves and logs all expense records',
+    'IT_ADMIN':        'System management manages staff accounts and system access',
+    'FLOOR_STAFF':     'Customer tracking records daily customer headcounts',
 }
 
 

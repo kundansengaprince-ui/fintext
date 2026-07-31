@@ -17,7 +17,7 @@ class MitchHubLoginSerializer(serializers.Serializer):
             raise serializers.ValidationError('Invalid username or password.')
         if not user.is_active:
             raise serializers.ValidationError('Account is disabled.')
-        # Must be a MitchHubUser — reject regular CustomUsers
+        # Must be a MitchHubUser - reject regular CustomUsers
         if not isinstance(user, MitchHubUser):
             raise serializers.ValidationError('Access denied.')
         data['user'] = user

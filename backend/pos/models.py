@@ -31,7 +31,7 @@ class MenuItem(models.Model):
         ordering = ['category', 'name']
 
     def __str__(self):
-        return f"{self.name} — RWF {self.price}"
+        return f"{self.name} - RWF {self.price}"
 
 
 class Transaction(models.Model):
@@ -52,7 +52,7 @@ class Transaction(models.Model):
         ordering = ['-created_at']
 
     def __str__(self):
-        return f"Txn #{self.id} — RWF {self.total} on {self.date}"
+        return f"Txn #{self.id} - RWF {self.total} on {self.date}"
 
 
 class TransactionItem(models.Model):

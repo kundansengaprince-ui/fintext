@@ -24,4 +24,4 @@ class ExpenseBudget(models.Model):
         verbose_name_plural = 'Expense Budgets'
 
     def __str__(self):
-        return f"{self.category.name} — {self.month.strftime('%b %Y')}: RWF {self.budgeted_amount:,.0f}"
+        return f"{self.category.name} - {self.month.strftime('%b %Y')}: RWF {self.budgeted_amount:,.0f}"

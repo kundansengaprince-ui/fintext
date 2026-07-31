@@ -106,7 +106,7 @@ for i in range(30):
     )
 
     # ── Expenses ──────────────────────────────────────────────────────────────
-    # COGS every day — 30–38% of sales
+    # COGS every day - 30–38% of sales
     cogs = Decimal(str(round(float(total_sales) * random.uniform(0.30, 0.38), -2)))
     ExpenseReport.objects.create(
         date=day, category=cogs_cat, amount=cogs,
@@ -141,7 +141,7 @@ for i in range(30):
             created_by=finance or manager,
         )
 
-    # ── Inventory — ALL items every day ───────────────────────────────────────
+    # ── Inventory - ALL items every day ───────────────────────────────────────
     # Using all items ensures inv_avg_value is always substantial (non-zero turnover)
     for item in items:
         reorder = float(item.reorder_level)

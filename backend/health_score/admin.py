@@ -58,7 +58,7 @@ class BusinessHealthScoreAdmin(admin.ModelAdmin):
     score_badge.admin_order_field = 'score'
 
     def trend_icon(self, obj):
-        icons = {'UP': '▲ Improving', 'DOWN': '▼ Declining', 'STABLE': '— Stable'}
+        icons = {'UP': '▲ Improving', 'DOWN': '▼ Declining', 'STABLE': '- Stable'}
         colors = {'UP': 'green', 'DOWN': 'red', 'STABLE': 'gray'}
         return format_html(
             '<span style="color:{}">{}</span>',

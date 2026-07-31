@@ -16,7 +16,7 @@ backend/media/
 backend/staticfiles/
 backend/server.log
 
-# ML models — too large for git, Railway will train them on startup
+# ML models - too large for git, Railway will train them on startup
 backend/ml/saved_model/*.pkl
 
 # Node

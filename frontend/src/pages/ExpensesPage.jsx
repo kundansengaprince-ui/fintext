@@ -79,7 +79,7 @@ export default function ExpensesPage() {
           {[
             ['Total Expenses', `RWF ${fmt(totalExpenses)}`],
             ['Records', `${allRecords.length}`],
-            ['Top Category', topCategory ? topCategory[0] : '—'],
+            ['Top Category', topCategory ? topCategory[0] : '-'],
           ].map(([label, value]) => (
             <Card key={label} className="p-4">
               <p className="text-xs uppercase tracking-wide" style={{ color: '#7A9184' }}>{label}</p>
@@ -146,15 +146,15 @@ export default function ExpensesPage() {
                       <td className="px-4 py-3">
                         <span className="inline-block text-xs font-medium px-2 py-0.5 rounded-full"
                           style={{ background: 'rgba(14,59,46,0.08)', color: '#0E3B2E' }}>
-                          {r.category_name ?? '—'}
+                          {r.category_name ?? '-'}
                         </span>
                       </td>
                       <td className="px-4 py-3 text-right font-semibold"
                         style={{ fontFamily: "'IBM Plex Mono', monospace", color: '#0A2820' }}>
                         RWF {fmt(r.amount)}
                       </td>
-                      <td className="px-4 py-3 max-w-xs truncate" style={{ color: '#7A9184' }}>{r.description || '—'}</td>
-                      <td className="px-4 py-3 text-xs" style={{ color: '#B7C4BC' }}>{r.receipt_reference || '—'}</td>
+                      <td className="px-4 py-3 max-w-xs truncate" style={{ color: '#7A9184' }}>{r.description || '-'}</td>
+                      <td className="px-4 py-3 text-xs" style={{ color: '#B7C4BC' }}>{r.receipt_reference || '-'}</td>
                       {can.editExpenses && (
                         <td className="px-4 py-3">
                           <div className="flex items-center justify-end gap-2">

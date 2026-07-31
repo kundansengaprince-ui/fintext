@@ -32,7 +32,7 @@ class SalesRecordAdmin(admin.ModelAdmin):
     def formatted_avg(self, obj):
         if obj.avg_transaction_value:
             return f"RWF {obj.avg_transaction_value:,.0f}"
-        return '—'
+        return '-'
     formatted_avg.short_description = 'Avg. Transaction'
 
     def save_model(self, request, obj, form, change):
