@@ -4,7 +4,7 @@ Shared role-based permission classes for all apps.
 Access matrix:
                    MANAGER  CASHIER  FINANCE  IT_ADMIN  FLOOR_STAFF
 Dashboard            R+W      -       R         R          -
-Sales                R+W     R+W      R         -          -
+Sales                R+W     R+W      R         -         R+C
 Expenses             R+W      -      R+W         -          -
 Inventory            R+W      -       R          -          -
 Customers            R+W      -       R          -         R+W
@@ -26,10 +26,14 @@ def _authenticated_with_role(user, roles):
 
 
 class SalesPermission(BasePermission):
-    """Manager + Cashier write; Manager + Cashier + Finance + IT read."""
+    """Manager + Cashier + Floor Staff create; Manager + Cashier edit/void;
+    Manager + Cashier + Finance + IT + Floor Staff read."""
     def has_permission(self, request, view):
         if request.method in SAFE_METHODS:
-            return _authenticated_with_role(request.user, [M, C, F, IT])
+            return _authenticated_with_role(request.user, [M, C, F, IT, FS])
+        if request.method == 'POST':
+            return _authenticated_with_role(request.user, [M, C, FS])
+        # PATCH / PUT / DELETE - Floor Staff explicitly excluded (anti-void control)
         return _authenticated_with_role(request.user, [M, C])
 
 
@@ -69,3 +73,15 @@ class TeamPermission(BasePermission):
     """Manager + IT Admin full access."""
     def has_permission(self, request, view):
         return _authenticated_with_role(request.user, [M, IT])
+
+
+class ServeOrderPermission(BasePermission):
+    """Role gate: Manager, Cashier, or Floor Staff.
+    Object gate: Floor Staff may only serve orders they created."""
+    def has_permission(self, request, view):
+        return _authenticated_with_role(request.user, [M, C, FS])
+
+    def has_object_permission(self, request, view, obj):
+        if request.user.role == FS:
+            return obj.created_by_id == request.user.id
+        return _authenticated_with_role(request.user, [M, C])

@@ -96,12 +96,14 @@ export default function DashboardPage() {
   const { data: latest, isLoading: latestLoading } = useQuery({
     queryKey: ['latest-score'],
     queryFn: () => getLatestScore().then(r => r.data),
+    enabled:  can.viewDashboard,
     retry: 1,
   })
 
   const { data: history = [] } = useQuery({
     queryKey: ['score-history'],
     queryFn: () => getScoreHistory().then(r => r.data.results ?? r.data),
+    enabled:  can.viewDashboard,
   })
 
   const compute = useMutation({

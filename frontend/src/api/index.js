@@ -55,6 +55,10 @@ export const updateMenuItem = (id, data) => api.patch(`/pos/menu/${id}/`, data)
 export const deleteMenuItem = (id) => api.delete(`/pos/menu/${id}/`)
 export const getTransactions = (params) => api.get('/pos/transactions/', { params })
 export const createTransaction = (data) => api.post('/pos/transactions/', data)
+export const serveTransaction  = (id)   => api.post(`/pos/transactions/${id}/serve/`)
+// My Shift - Floor Staff only. Returns only name + quantity, no revenue data.
+export const getMyShiftStats   = (date) => api.get('/pos/transactions/', { params: { date, status: 'completed', created_by: 'me' } })
+export const getTopItems       = (date) => api.get('/pos/top-items/', { params: { date } })
 
 // Health Score
 export const getScoreSummary = () => api.get('/health-score/summary/')

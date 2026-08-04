@@ -22,6 +22,7 @@ import POSPage from './pages/POSPage'
 import MenuPage from './pages/MenuPage'
 import FinancialAnalyticsPage from './pages/FinancialAnalyticsPage'
 import TransactionsPage from './pages/TransactionsPage'
+import MyShiftPage from './pages/MyShiftPage'
 
 const qc = new QueryClient({
   defaultOptions: {
@@ -152,6 +153,13 @@ function AppRoutes() {
         <ProtectedRoute>
           <Layout>
             <FinancialAnalyticsPage />
+          </Layout>
+        </ProtectedRoute>
+      } />
+      <Route path="/my-shift" element={
+        <ProtectedRoute>
+          <Layout>
+            <MyShiftPage />
           </Layout>
         </ProtectedRoute>
       } />

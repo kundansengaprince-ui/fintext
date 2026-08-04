@@ -18,7 +18,7 @@ class TransactionItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = TransactionItem
         fields = ('id', 'menu_item', 'menu_item_name', 'menu_item_category', 'quantity', 'unit_price', 'subtotal')
-        read_only_fields = ('subtotal',)
+        read_only_fields = ('unit_price', 'subtotal')  # both set server-side from menu_item.price
 
 
 class TransactionSerializer(serializers.ModelSerializer):
@@ -37,9 +37,7 @@ class TransactionSerializer(serializers.ModelSerializer):
         return transaction
 
     def _save_items(self, transaction, items_data):
-        from inventory.models import InventoryItem, InventoryRecord
         from sales.models import SalesRecord
-        from django.db.models import Sum
         from decimal import Decimal
 
         total = Decimal('0')
@@ -59,27 +57,9 @@ class TransactionSerializer(serializers.ModelSerializer):
                 subtotal=subtotal,
             )
 
-            # Decrement inventory - create today's record if it doesn't exist yet
-            if menu_item.inventory_item:
-                inv_item = menu_item.inventory_item
-                consumed = menu_item.inventory_qty_per_sale * qty
-
-                record, created = InventoryRecord.objects.get_or_create(
-                    business=transaction.business,
-                    item=inv_item,
-                    date=transaction.date,
-                    defaults={
-                        'opening_quantity': 0,
-                        'quantity_received': 0,
-                        'quantity_used': consumed,
-                        'wastage': 0,
-                        'notes': 'Auto-created by POS',
-                        'created_by': transaction.created_by,
-                    }
-                )
-                if not created:
-                    record.quantity_used = Decimal(str(record.quantity_used)) + Decimal(str(consumed))
-                    record.save()
+            # Inventory deduction intentionally removed from order creation.
+            # Stock is deducted when the order is marked as served via
+            # POST /api/pos/transactions/<id>/serve/ - see _deduct_inventory_for_transaction.
 
         transaction.total = total
         transaction.save(update_fields=['total'])
@@ -116,3 +96,90 @@ class TransactionSerializer(serializers.ModelSerializer):
         sales_record.beverage_sales   = day_bev
         sales_record.num_transactions = txn_count
         sales_record.save()
+
+
+def _deduct_inventory_for_transaction(transaction):
+    """
+    Increment InventoryRecord.quantity_used for every item in the transaction.
+    Called ONLY from the mark-as-served action - never at order creation time.
+    This function is read-free with respect to InventoryItem stock levels;
+    it only writes to quantity_used and never reads closing_quantity.
+    """
+    from inventory.models import InventoryRecord
+    from decimal import Decimal
+
+    for ti in transaction.items.select_related('menu_item__inventory_item'):
+        menu_item = ti.menu_item
+        if not menu_item.inventory_item:
+            continue
+        inv_item = menu_item.inventory_item
+        consumed = Decimal(str(menu_item.inventory_qty_per_sale)) * ti.quantity
+
+        record, created = InventoryRecord.objects.get_or_create(
+            business=transaction.business,
+            item=inv_item,
+            date=transaction.date,
+            defaults={
+                'opening_quantity': 0,
+                'quantity_received': 0,
+                'quantity_used': consumed,
+                'wastage': 0,
+                'notes': 'Auto-created by POS on serve',
+                'created_by': transaction.created_by,
+            }
+        )
+        if not created:
+            record.quantity_used = Decimal(str(record.quantity_used)) + consumed
+            record.save()
+
+
+def _update_sales_record(transaction):
+    """
+    Re-aggregate SalesRecord for the transaction's date from all COMPLETED
+    transactions for that business. Called after a transaction is marked served
+    (status set to COMPLETED) and after a void.
+    Mirrors the aggregation logic already in _save_items and TransactionDetailView.
+    """
+    from sales.models import SalesRecord
+    from decimal import Decimal
+
+    sales_record, _ = SalesRecord.objects.get_or_create(
+        business=transaction.business,
+        date=transaction.date,
+        defaults={'total_sales': 0, 'created_by': transaction.created_by},
+    )
+
+    completed = Transaction.objects.filter(
+        business=transaction.business,
+        date=transaction.date,
+        status=Transaction.Status.COMPLETED,
+    ).prefetch_related('items__menu_item')
+
+    day_total = Decimal('0')
+    day_food  = Decimal('0')
+    day_bev   = Decimal('0')
+    txn_count = 0
+
+    for t in completed:
+        txn_count += 1
+        for ti in t.items.all():
+            day_total += ti.subtotal
+            if ti.menu_item.category == 'food':
+                day_food += ti.subtotal
+            elif ti.menu_item.category == 'beverage':
+                day_bev += ti.subtotal
+
+    sales_record.total_sales      = day_total
+    sales_record.food_sales       = day_food
+    sales_record.beverage_sales   = day_bev
+    sales_record.num_transactions = txn_count
+    sales_record.save()
+
+
+class MarkServedSerializer(serializers.Serializer):
+    """
+    Write-only serializer for the mark-as-served action.
+    No client input is required - all logic is server-side.
+    The request body can be empty; served_at and status are set by the view.
+    """
+    pass

@@ -1,8 +1,14 @@
 from rest_framework import generics, filters
 from rest_framework.permissions import IsAuthenticated
-from .models import MenuItem, Transaction
-from .serializers import MenuItemSerializer, TransactionSerializer
-from core.permissions import SalesPermission, TeamPermission
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status as http_status
+from django.db.models import Sum
+from django.shortcuts import get_object_or_404
+from django.utils import timezone
+from .models import MenuItem, Transaction, TransactionItem
+from .serializers import MenuItemSerializer, TransactionSerializer, _deduct_inventory_for_transaction, _update_sales_record
+from core.permissions import SalesPermission, TeamPermission, ServeOrderPermission
 from audit.utils import log
 from audit.models import AuditLog
 
@@ -46,6 +52,10 @@ class TransactionListCreateView(generics.ListCreateAPIView):
         if p.get('date'):      qs = qs.filter(date=p['date'])
         if p.get('date_from'): qs = qs.filter(date__gte=p['date_from'])
         if p.get('date_to'):   qs = qs.filter(date__lte=p['date_to'])
+        if p.get('status'):    qs = qs.filter(status=p['status'])
+        # 'me' is the only accepted value - resolved server-side to prevent ID spoofing
+        if p.get('created_by') == 'me':
+            qs = qs.filter(created_by=self.request.user)
         return qs
 
     def perform_create(self, serializer):
@@ -88,3 +98,91 @@ class TransactionDetailView(generics.RetrieveUpdateAPIView):
                 beverage_sales=day_bev, num_transactions=txn_count,
             )
             log(self.request, AuditLog.Action.UPDATE, 'POS', obj.id, f'Transaction #{obj.id} voided')
+
+
+class MarkOrderServedView(APIView):
+    """
+    POST /api/pos/transactions/<pk>/serve/
+
+    Marks an order as served. This is the moment stock is deducted.
+
+    Access rules (ServeOrderPermission):
+      - Manager / Cashier: can serve any order for their business
+      - Floor Staff: can only serve orders they created (created_by == request.user)
+
+    Guards:
+      - Voided orders cannot be served (400)
+      - Already-served orders cannot be served again - no double-deduction (400)
+      - served_at and status are set server-side; not settable by the client
+    """
+    permission_classes = [ServeOrderPermission]
+
+    def get_object(self):
+        txn = get_object_or_404(
+            Transaction.objects.filter(business=self.request.user.business),
+            pk=self.kwargs['pk'],
+        )
+        self.check_object_permissions(self.request, txn)
+        return txn
+
+    def post(self, request, pk):
+        txn = self.get_object()
+
+        if txn.status == Transaction.Status.VOIDED:
+            return Response(
+                {'detail': 'Voided orders cannot be marked as served.'},
+                status=http_status.HTTP_400_BAD_REQUEST,
+            )
+
+        if txn.served_at is not None:
+            return Response(
+                {'detail': 'Order has already been marked as served.'},
+                status=http_status.HTTP_400_BAD_REQUEST,
+            )
+
+        # Deduct stock for all items in the order
+        _deduct_inventory_for_transaction(txn)
+
+        # Set status + timestamp atomically
+        txn.served_at = timezone.now()
+        txn.status    = Transaction.Status.COMPLETED
+        txn.save(update_fields=['served_at', 'status'])
+
+        # Update today's SalesRecord - order is now COMPLETED so it counts toward daily totals
+        _update_sales_record(txn)
+
+        log(request, AuditLog.Action.UPDATE, 'POS', txn.id,
+            f'Transaction #{txn.id} marked as served by {request.user}')
+
+        return Response(TransactionSerializer(txn).data, status=http_status.HTTP_200_OK)
+
+
+class TopItemsView(APIView):
+    """
+    GET /api/pos/top-items/?date=YYYY-MM-DD
+
+    Returns the top 10 menu items by quantity sold for the given date
+    (defaults to today) across the whole business.
+    Response: [{name, quantity}] - no price or revenue data exposed.
+    Permission: SalesPermission read path (Manager, Cashier, Finance, IT, Floor Staff).
+    """
+    permission_classes = [SalesPermission]
+
+    def get(self, request):
+        from datetime import date as date_type
+        target = request.query_params.get('date', str(date_type.today()))
+        rows = (
+            TransactionItem.objects
+            .filter(
+                transaction__business=request.user.business,
+                transaction__date=target,
+                transaction__status=Transaction.Status.COMPLETED,
+            )
+            .values('menu_item__name')
+            .annotate(quantity=Sum('quantity'))
+            .order_by('-quantity')[:10]
+        )
+        return Response([
+            {'name': r['menu_item__name'], 'quantity': r['quantity']}
+            for r in rows
+        ])

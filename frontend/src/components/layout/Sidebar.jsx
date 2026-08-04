@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom'
-import { LayoutDashboard, TrendingUp, Receipt, Package, Users, UserCog, BarChart2, LogOut, ShieldCheck, ClipboardList, ShoppingCart, UtensilsCrossed, History, LineChart } from 'lucide-react'
+import { LayoutDashboard, TrendingUp, Receipt, Package, Users, UserCog, BarChart2, LogOut, ShieldCheck, ClipboardList, ShoppingCart, UtensilsCrossed, History, LineChart, Sunrise } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 const logo = '/logo.png'
 
@@ -16,8 +16,9 @@ export default function Sidebar() {
 
   const navItems = [
     { to: '/',             icon: LayoutDashboard, label: 'Dashboard',    show: can.viewDashboard },
+    { to: '/my-shift',     icon: Sunrise,         label: 'My Shift',     show: can.viewMyShift },
     { to: '/daily-entry',  icon: ClipboardList,   label: 'Daily Entry',  show: can.editSales || can.editExpenses || can.editInventory || can.editCustomers },
-    { to: '/pos',          icon: ShoppingCart,    label: 'POS',          show: can.editSales },
+    { to: '/pos',          icon: ShoppingCart,    label: 'POS',          show: can.usePOS },
     { to: '/transactions', icon: History,         label: 'Transactions', show: can.viewSales },
     { to: '/menu',         icon: UtensilsCrossed, label: 'Menu',         show: can.manageTeam },
     { to: '/sales',        icon: TrendingUp,      label: 'Sales',        show: can.viewSales },

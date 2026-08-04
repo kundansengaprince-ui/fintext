@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { getMenuItems, createTransaction } from '../api'
+import { getMenuItems, createTransaction, serveTransaction } from '../api'
+import { useAuth } from '../context/AuthContext'
 import Card from '../components/ui/Card'
 import Button from '../components/ui/Button'
 import toast from 'react-hot-toast'
@@ -14,6 +15,7 @@ const DRAFT_KEY = 'pos_draft'
 const CAT_LABEL = { food: 'Food', beverage: 'Beverages', other: 'Other' }
 
 export default function POSPage() {
+  const { role } = useAuth()
   const qc = useQueryClient()
   const [date, setDate]         = useState(today())
   const [notes, setNotes]       = useState('')
@@ -43,11 +45,15 @@ export default function POSPage() {
   const total     = cartItems.reduce((s, i) => s + parseFloat(i.price) * i.qty, 0)
   const itemCount = cartItems.reduce((s, i) => s + i.qty, 0)
 
+  // Floor Staff orders start as 'open' - stock is deducted when marked served.
+  // Manager / Cashier orders are 'completed' immediately (existing behaviour).
+  const submitStatus = role === 'FLOOR_STAFF' ? 'open' : 'completed'
+
   const complete = useMutation({
     mutationFn: () => createTransaction({
       date,
       notes,
-      status: 'completed',
+      status: submitStatus,
       items: cartItems.map(i => ({ menu_item: i.id, quantity: i.qty })),
     }),
     onSuccess: (res) => {
@@ -62,6 +68,18 @@ export default function POSPage() {
       toast.success(`Order #${res.data.id} saved - RWF ${fmt(res.data.total)}`)
     },
     onError: () => toast.error('Could not save order.'),
+  })
+
+  const serve = useMutation({
+    mutationFn: () => serveTransaction(lastTxn.id),
+    onSuccess: (res) => {
+      setLastTxn(res.data)
+      qc.invalidateQueries({ queryKey: ['transactions'] })
+      qc.invalidateQueries({ queryKey: ['inventory-records'] })
+      qc.invalidateQueries({ queryKey: ['low-stock'] })
+      toast.success(`Order #${res.data.id} marked as served - stock updated`)
+    },
+    onError: () => toast.error('Could not mark as served.'),
   })
 
   const OrderPanel = () => (
@@ -162,9 +180,28 @@ export default function POSPage() {
             <CheckCircle size={16} className="text-emerald-600 shrink-0" />
             <div>
               <p className="text-sm font-semibold text-emerald-700">Order #{lastTxn.id} saved - RWF {fmt(lastTxn.total)}</p>
-              <p className="text-xs text-emerald-500">Sales &amp; inventory updated automatically</p>
+              <p className="text-xs text-emerald-500">
+                {lastTxn.served_at
+                  ? 'Served - stock & sales updated'
+                  : role === 'FLOOR_STAFF'
+                    ? 'Tap "Done" when delivered to the table'
+                    : 'Sales & inventory updated automatically'}
+              </p>
             </div>
-            <button onClick={() => setLastTxn(null)} className="ml-auto text-emerald-400 hover:text-emerald-600">
+            {/* Floor Staff: show serve button until the order is marked served */}
+            {role === 'FLOOR_STAFF' && !lastTxn.served_at && (
+              <button
+                onClick={() => serve.mutate()}
+                disabled={serve.isPending}
+                className="shrink-0 flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-700
+                           disabled:opacity-60 text-white text-xs font-semibold
+                           px-3 py-1.5 rounded-lg transition-colors active:scale-95"
+              >
+                <CheckCircle size={13} />
+                {serve.isPending ? 'Marking…' : 'Done - Served'}
+              </button>
+            )}
+            <button onClick={() => setLastTxn(null)} className="ml-auto text-emerald-400 hover:text-emerald-600 shrink-0">
               <X size={14} />
             </button>
           </div>

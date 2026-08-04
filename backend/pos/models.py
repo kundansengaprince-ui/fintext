@@ -43,10 +43,11 @@ class Transaction(models.Model):
     business   = models.ForeignKey('accounts.Business', on_delete=models.CASCADE, related_name='transactions')
     date       = models.DateField()
     total      = models.DecimalField(max_digits=12, decimal_places=2, default=0)
-    status     = models.CharField(max_length=20, choices=Status.choices, default=Status.COMPLETED)
+    status     = models.CharField(max_length=20, choices=Status.choices, default=Status.OPEN)
     notes      = models.TextField(blank=True)
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    served_at  = models.DateTimeField(null=True, blank=True)
 
     class Meta:
         ordering = ['-created_at']
