@@ -40,7 +40,7 @@ for r in SalesRecord.objects.all():
     logs.append(AuditLog(
         user=r.created_by or cashier, action=AuditLog.Action.CREATE,
         module='Sales', object_id=str(r.id),
-        detail=f'Sales record for {r.date} — RWF {r.total_sales:,}',
+        detail=f'Sales record for {r.date} - RWF {r.total_sales:,}',
         timestamp=r.created_at,
     ))
 
@@ -49,7 +49,7 @@ for r in ExpenseReport.objects.select_related('category').all():
     logs.append(AuditLog(
         user=r.created_by or finance, action=AuditLog.Action.CREATE,
         module='Expenses', object_id=str(r.id),
-        detail=f'Expense {r.category} — RWF {r.amount:,} on {r.date}',
+        detail=f'Expense {r.category} - RWF {r.amount:,} on {r.date}',
         timestamp=r.created_at,
     ))
 
@@ -67,7 +67,7 @@ for r in CustomerRetentionRecord.objects.all():
     logs.append(AuditLog(
         user=r.created_by or floor, action=AuditLog.Action.CREATE,
         module='Customers', object_id=str(r.id),
-        detail=f'Customer record for {r.date} — {r.total_customers} customers ({r.retention_rate}% retention)',
+        detail=f'Customer record for {r.date} - {r.total_customers} customers ({r.retention_rate}% retention)',
         timestamp=r.created_at,
     ))
 
@@ -76,7 +76,7 @@ for r in BusinessHealthScore.objects.all():
     logs.append(AuditLog(
         user=manager, action=AuditLog.Action.COMPUTE,
         module='Dashboard', object_id=str(r.id),
-        detail=f'Computed health score for {r.date} — {r.score} ({r.label})',
+        detail=f'Computed health score for {r.date} - {r.score} ({r.label})',
         timestamp=r.created_at,
     ))
 
