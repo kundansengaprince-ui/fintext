@@ -49,6 +49,13 @@ function MitchHubRoute({ children }) {
   return children
 }
 
+function HomeRoute({ children }) {
+  const { user } = useAuth()
+  if (!user) return <Navigate to="/login" replace />
+  if (user.role === 'FLOOR_STAFF') return <Navigate to="/my-shift" replace />
+  return children
+}
+
 function AppRoutes() {
   return (
     <Routes>
@@ -66,11 +73,11 @@ function AppRoutes() {
         <MitchHubRoute><MitchHubPage /></MitchHubRoute>
       } />
       <Route path="/" element={
-        <ProtectedRoute>
+        <HomeRoute>
           <Layout>
             <DashboardPage />
           </Layout>
-        </ProtectedRoute>
+        </HomeRoute>
       } />
       <Route path="/sales" element={
         <ProtectedRoute>
