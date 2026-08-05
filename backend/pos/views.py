@@ -48,6 +48,10 @@ class TransactionListCreateView(generics.ListCreateAPIView):
 
     def get_queryset(self):
         qs = Transaction.objects.filter(business=self.request.user.business).prefetch_related('items__menu_item')
+        # Floor Staff are unconditionally scoped to their own transactions only.
+        # This is enforced server-side regardless of any query param the client sends.
+        if self.request.user.role == 'FLOOR_STAFF':
+            return qs.filter(created_by=self.request.user)
         p = self.request.query_params
         if p.get('date'):      qs = qs.filter(date=p['date'])
         if p.get('date_from'): qs = qs.filter(date__gte=p['date_from'])
@@ -71,7 +75,12 @@ class TransactionDetailView(generics.RetrieveUpdateAPIView):
     permission_classes = [SalesPermission]
 
     def get_queryset(self):
-        return Transaction.objects.filter(business=self.request.user.business).prefetch_related('items__menu_item')
+        qs = Transaction.objects.filter(business=self.request.user.business).prefetch_related('items__menu_item')
+        # Floor Staff may only fetch their own transactions by ID.
+        # An attempt to fetch another user's transaction returns 404, not 403.
+        if self.request.user.role == 'FLOOR_STAFF':
+            qs = qs.filter(created_by=self.request.user)
+        return qs
 
     def perform_update(self, serializer):
         obj = serializer.save()

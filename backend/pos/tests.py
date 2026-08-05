@@ -71,7 +71,8 @@ class MenuAPITest(TestCase):
         m2.is_available = False
         m2.save()
         r = self.cash_c.get(MENU_URL, {'available_only': True})
-        names = [i['name'] for i in r.json()]
+        items = r.json().get('results', r.json())
+        names = [i['name'] for i in items]
         self.assertIn('Available', names)
         self.assertNotIn('Unavailable', names)
 
@@ -81,7 +82,8 @@ class MenuAPITest(TestCase):
         make_menu_item(other_biz, 'OtherItem')
         make_menu_item(self.biz, 'MyItem')
         r = self.mgr_c.get(MENU_URL)
-        names = [i['name'] for i in r.json()]
+        items = r.json().get('results', r.json())
+        names = [i['name'] for i in items]
         self.assertIn('MyItem', names)
         self.assertNotIn('OtherItem', names)
 
@@ -209,7 +211,8 @@ class TransactionVoidTest(TestCase):
         self._create_txn()
         r = self.mgr_c.get(TXN_URL)
         self.assertEqual(r.status_code, 200)
-        self.assertGreaterEqual(len(r.json()), 1)
+        results = r.json().get('results', r.json())
+        self.assertGreaterEqual(len(results), 1)
 
     def test_business_isolation_transactions(self):
         other_biz  = make_business('Other')
@@ -220,7 +223,8 @@ class TransactionVoidTest(TestCase):
             'items': [{'menu_item': other_menu.id, 'quantity': 1}],
         }, format='json')
         r = self.mgr_c.get(TXN_URL)
-        totals = [float(t['total']) for t in r.json()]
+        results = r.json().get('results', r.json())
+        totals = [float(t['total']) for t in results]
         self.assertNotIn(9999.0, totals)
 
 
@@ -381,3 +385,113 @@ class MarkOrderServedTest(TestCase):
         txn_id = self._create_order(self.w1_c)
         r = self.w1_c.patch(f'{TXN_URL}{txn_id}/', {'status': 'voided'}, format='json')
         self.assertEqual(r.status_code, 403)
+
+
+class FloorStaffTransactionScopeTest(TestCase):
+    """
+    Confirms that Floor Staff can never read another user's transactions via the
+    list or detail endpoints, regardless of query params sent.
+    Non-Floor Staff roles retain full business-scoped read access.
+    """
+    def setUp(self):
+        self.biz      = make_business()
+        self.waiter1  = make_user(self.biz, 'FLOOR_STAFF', 'scope_w1')
+        self.waiter2  = make_user(self.biz, 'FLOOR_STAFF', 'scope_w2')
+        self.manager  = make_user(self.biz, 'MANAGER',     'scope_mgr')
+        self.cashier  = make_user(self.biz, 'CASHIER',     'scope_cash')
+        self.finance  = make_user(self.biz, 'FINANCE_OFFICER', 'scope_fin')
+        self.it_admin = make_user(self.biz, 'IT_ADMIN',    'scope_it')
+
+        self.w1_c   = auth_client(self.waiter1)
+        self.w2_c   = auth_client(self.waiter2)
+        self.mgr_c  = auth_client(self.manager)
+        self.cash_c = auth_client(self.cashier)
+        self.fin_c  = auth_client(self.finance)
+        self.it_c   = auth_client(self.it_admin)
+
+        self.menu_item = make_menu_item(self.biz, 'Primus', price=1500)
+
+        # waiter1 creates one order, waiter2 creates one order
+        r1 = self.w1_c.post(TXN_URL, {
+            'date': str(date.today()),
+            'items': [{'menu_item': self.menu_item.id, 'quantity': 1}],
+        }, format='json')
+        self.w1_txn_id = r1.json()['id']
+
+        r2 = self.w2_c.post(TXN_URL, {
+            'date': str(date.today()),
+            'items': [{'menu_item': self.menu_item.id, 'quantity': 1}],
+        }, format='json')
+        self.w2_txn_id = r2.json()['id']
+
+    # ── LIST endpoint ──────────────────────────────────────────────────────────
+
+    def test_floor_staff_list_returns_only_own_transactions(self):
+        """waiter1 sees only their own order, not waiter2's."""
+        r = self.w1_c.get(TXN_URL)
+        self.assertEqual(r.status_code, 200)
+        ids = [t['id'] for t in r.json()['results']]
+        self.assertIn(self.w1_txn_id, ids)
+        self.assertNotIn(self.w2_txn_id, ids)
+
+    def test_floor_staff_list_ignores_missing_created_by_param(self):
+        """Omitting created_by=me must not expose other users' transactions."""
+        r = self.w1_c.get(TXN_URL)   # no params at all
+        ids = [t['id'] for t in r.json()['results']]
+        self.assertNotIn(self.w2_txn_id, ids)
+
+    def test_floor_staff_list_with_arbitrary_created_by_param_still_scoped(self):
+        """Sending created_by=<other_id> must not bypass the server-side scope."""
+        r = self.w1_c.get(TXN_URL, {'created_by': self.waiter2.id})
+        ids = [t['id'] for t in r.json()['results']]
+        self.assertNotIn(self.w2_txn_id, ids)
+        self.assertIn(self.w1_txn_id, ids)
+
+    # ── DETAIL endpoint ────────────────────────────────────────────────────────
+
+    def test_floor_staff_can_fetch_own_transaction_by_id(self):
+        r = self.w1_c.get(f'{TXN_URL}{self.w1_txn_id}/')
+        self.assertEqual(r.status_code, 200)
+
+    def test_floor_staff_cannot_fetch_other_waiters_transaction_by_id(self):
+        """Must return 404, not 403 — no information about the object existing."""
+        r = self.w1_c.get(f'{TXN_URL}{self.w2_txn_id}/')
+        self.assertEqual(r.status_code, 404)
+
+    def test_floor_staff_cannot_fetch_managers_transaction_by_id(self):
+        mgr_txn = self.mgr_c.post(TXN_URL, {
+            'date': str(date.today()),
+            'items': [{'menu_item': self.menu_item.id, 'quantity': 1}],
+        }, format='json').json()['id']
+        r = self.w1_c.get(f'{TXN_URL}{mgr_txn}/')
+        self.assertEqual(r.status_code, 404)
+
+    # ── Other roles retain full business-scoped access ─────────────────────────
+
+    def test_manager_list_sees_all_transactions(self):
+        r = self.mgr_c.get(TXN_URL)
+        ids = [t['id'] for t in r.json()['results']]
+        self.assertIn(self.w1_txn_id, ids)
+        self.assertIn(self.w2_txn_id, ids)
+
+    def test_cashier_list_sees_all_transactions(self):
+        r = self.cash_c.get(TXN_URL)
+        ids = [t['id'] for t in r.json()['results']]
+        self.assertIn(self.w1_txn_id, ids)
+        self.assertIn(self.w2_txn_id, ids)
+
+    def test_finance_list_sees_all_transactions(self):
+        r = self.fin_c.get(TXN_URL)
+        ids = [t['id'] for t in r.json()['results']]
+        self.assertIn(self.w1_txn_id, ids)
+        self.assertIn(self.w2_txn_id, ids)
+
+    def test_it_admin_list_sees_all_transactions(self):
+        r = self.it_c.get(TXN_URL)
+        ids = [t['id'] for t in r.json()['results']]
+        self.assertIn(self.w1_txn_id, ids)
+        self.assertIn(self.w2_txn_id, ids)
+
+    def test_manager_can_fetch_waiter_transaction_by_id(self):
+        r = self.mgr_c.get(f'{TXN_URL}{self.w1_txn_id}/')
+        self.assertEqual(r.status_code, 200)
