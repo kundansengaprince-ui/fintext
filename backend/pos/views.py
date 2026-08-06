@@ -195,3 +195,65 @@ class TopItemsView(APIView):
             {'name': r['menu_item__name'], 'quantity': r['quantity']}
             for r in rows
         ])
+
+
+class TeamShiftsView(APIView):
+    """
+    GET /api/pos/team-shifts/?date=YYYY-MM-DD
+
+    Returns one aggregated row per Floor Staff waiter showing their completed-order
+    stats for the given date (defaults to today), sorted by total value descending.
+
+    Response: [{waiter_name, orders_served, total_value}]
+    - waiter_name: first_name + last_name (username fallback), no role suffix
+    - orders_served: count of COMPLETED transactions created by that waiter
+    - total_value: sum of transaction totals for that waiter
+
+    Permission: TeamPermission — Manager and IT Admin only.
+    Floor Staff cannot reach this endpoint (403). This is stricter than the
+    existing My Shift / POS endpoints because it exposes OTHER people's data.
+    """
+    permission_classes = [TeamPermission]
+
+    def get(self, request):
+        from datetime import date as date_type
+        from django.db.models import Count
+        from accounts.models import CustomUser
+
+        target = request.query_params.get('date', str(date_type.today()))
+
+        # Aggregate completed transactions per Floor Staff waiter for the given date.
+        # Query the user table so we always get a row for each active Floor Staff member
+        # even if they haven't served yet, then join to transaction aggregates.
+        rows = (
+            Transaction.objects
+            .filter(
+                business=request.user.business,
+                date=target,
+                status=Transaction.Status.COMPLETED,
+                created_by__role=CustomUser.Role.FLOOR_STAFF,
+            )
+            .values(
+                'created_by__id',
+                'created_by__first_name',
+                'created_by__last_name',
+                'created_by__username',
+            )
+            .annotate(
+                orders_served=Count('id'),
+                total_value=Sum('total'),
+            )
+            .order_by('-total_value')
+        )
+
+        return Response([
+            {
+                'waiter_name': (
+                    f"{r['created_by__first_name']} {r['created_by__last_name']}".strip()
+                    or r['created_by__username']
+                ),
+                'orders_served': r['orders_served'],
+                'total_value':   str(r['total_value']),
+            }
+            for r in rows
+        ])

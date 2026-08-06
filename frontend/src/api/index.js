@@ -59,6 +59,8 @@ export const serveTransaction  = (id)   => api.post(`/pos/transactions/${id}/ser
 // My Shift - Floor Staff only. Returns only name + quantity, no revenue data.
 export const getMyShiftStats   = (date) => api.get('/pos/transactions/', { params: { date, status: 'completed', created_by: 'me' } })
 export const getTopItems       = (date) => api.get('/pos/top-items/', { params: { date } })
+// Team Shifts - Manager and IT Admin only. Returns per-waiter aggregated stats.
+export const getTeamShifts     = (date) => api.get('/pos/team-shifts/', { params: { date } })
 
 // Health Score
 export const getScoreSummary = () => api.get('/health-score/summary/')

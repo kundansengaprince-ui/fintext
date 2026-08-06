@@ -23,6 +23,7 @@ import MenuPage from './pages/MenuPage'
 import FinancialAnalyticsPage from './pages/FinancialAnalyticsPage'
 import TransactionsPage from './pages/TransactionsPage'
 import MyShiftPage from './pages/MyShiftPage'
+import TeamShiftsPage from './pages/TeamShiftsPage'
 
 const qc = new QueryClient({
   defaultOptions: {
@@ -53,6 +54,13 @@ function HomeRoute({ children }) {
   const { user } = useAuth()
   if (!user) return <Navigate to="/login" replace />
   if (user.role === 'FLOOR_STAFF') return <Navigate to="/my-shift" replace />
+  return children
+}
+
+function TeamShiftsRoute({ children }) {
+  const { user } = useAuth()
+  if (!user) return <Navigate to="/login" replace />
+  if (!['MANAGER', 'IT_ADMIN'].includes(user.role)) return <Navigate to="/" replace />
   return children
 }
 
@@ -169,6 +177,13 @@ function AppRoutes() {
             <MyShiftPage />
           </Layout>
         </ProtectedRoute>
+      } />
+      <Route path="/team-shifts" element={
+        <TeamShiftsRoute>
+          <Layout>
+            <TeamShiftsPage />
+          </Layout>
+        </TeamShiftsRoute>
       } />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

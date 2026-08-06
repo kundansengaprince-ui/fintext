@@ -89,6 +89,7 @@ export function AuthProvider({ children }) {
     editSales:      ['MANAGER', 'CASHIER'].includes(role),
     usePOS:         ['MANAGER', 'CASHIER', 'FLOOR_STAFF'].includes(role),
     viewMyShift:    ['FLOOR_STAFF'].includes(role),
+    viewTeamShifts: ['MANAGER', 'IT_ADMIN'].includes(role),
     viewExpenses:   ['MANAGER', 'FINANCE_OFFICER', 'IT_ADMIN'].includes(role),
     editExpenses:   ['MANAGER', 'FINANCE_OFFICER'].includes(role),
     viewInventory:  ['MANAGER', 'FINANCE_OFFICER', 'IT_ADMIN'].includes(role),
